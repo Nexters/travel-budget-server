@@ -1,7 +1,7 @@
 # Travel budget server
 
 ## Code Style
-- Google Java Style Guide
+- [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
 
 ## Project Structure
 - Based on DDD
