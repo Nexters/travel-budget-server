@@ -1,5 +1,9 @@
 # Travel budget server
 
+## Getting started
+- Set Active Profiles to "local" 
+- Run TravelBudgetApplication
+
 ## Code Style
 - [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
 
