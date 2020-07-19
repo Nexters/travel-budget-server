@@ -2,4 +2,12 @@
 POST http://localhost:8080/api/kakao/signin
 Content-Type: application/json
 
-{"k": "dd", "dd": "A"}
+{"kakao_id": "dd", "dd": "A"}
+
+
+### Test auth 403
+POST http://localhost:8080/api/kakao/signout
+Content-Type: application/json
+
+{"kakao_id": "dd", "dd": "A"}
+
