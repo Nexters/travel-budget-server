@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.infra.auth.JwtTokenUtil;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;

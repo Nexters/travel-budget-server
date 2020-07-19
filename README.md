@@ -1,8 +1,10 @@
 # Travel budget server
 
 ## Getting started
-- Set Active Profiles to "local" 
-- Run TravelBudgetApplication
+1. Set Active Profiles to "local"
+2. Run local mysql DB using 13303 port. (Or mariaDB) 
+3. Execute create_db.sql and create_db_user.sql
+4. Run TravelBudgetApplication
 
 ## Code Style
 - [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
