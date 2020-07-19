@@ -4,10 +4,9 @@ Content-Type: application/json
 
 {"kakao_id": "dd", "dd": "A"}
 
+### Test auth success
+GET http://localhost:8080/api/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNTk1MTY2ODcyLCJleHAiOjE1OTUyNTMyNzJ9.UXyfD6Duu-opjxDEiZqI8mh-sJctf_LI2eoKnQxPbSs
 
-### Test auth 403
-POST http://localhost:8080/api/kakao/signout
-Content-Type: application/json
-
-{"kakao_id": "dd", "dd": "A"}
-
+### Test auth fail 401
+GET http://localhost:8080/api/me

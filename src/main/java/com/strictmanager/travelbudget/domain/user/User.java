@@ -2,6 +2,7 @@ package com.strictmanager.travelbudget.domain.user;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.Transient;
 import lombok.AccessLevel;
@@ -36,11 +37,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        for (String role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role));
-        }
-        return authorities;
+        return Collections.emptyList();
     }
 
     @Override

@@ -11,6 +11,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -24,10 +25,15 @@ public class AuthController {
     public ResponseEntity<?> kakaoSignin(@RequestBody @Valid KakaoUserRequest kakaoUserRequest) {
         log.debug("[kakaoSignin] params - {}", kakaoUserRequest);
         // TODO: Create kakaoUser
-        UserDetails user = User.builder().nickname("test").build();
+        UserDetails user = User.builder().id(1L).nickname("test").build();
         final String accessToken = jwtTokenUtil.generateToken(user);
         final String refreshToken = jwtTokenUtil.generateRefreshToken(user);
         return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me() {
+        return ResponseEntity.ok().build();
     }
 
     @Getter
