@@ -1,0 +1,5 @@
+### Kakao callback
+POST http://localhost:8080/api/kakao/callback
+Content-Type: application/json
+
+{"test": "", "dd": "A"}
