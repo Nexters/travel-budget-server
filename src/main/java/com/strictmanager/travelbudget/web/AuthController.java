@@ -4,22 +4,26 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.infra.auth.JwtTokenUtil;
-import com.sun.istack.NotNull;
-import java.util.Map;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+@Slf4j
 @ApiController
 @RequiredArgsConstructor
 public class AuthController {
     private final JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("/kakao/signin")
-    public ResponseEntity<?> kakaoCallback(@RequestBody Map<String, Object> kakaoUser) {
+    public ResponseEntity<?> kakaoSignin(@RequestBody @Valid KakaoUserRequest kakaoUserRequest) {
+        log.debug("[kakaoSignin] params - {}", kakaoUserRequest);
         // TODO: Create kakaoUser
         UserDetails user = new User("test");
         final String accessToken = jwtTokenUtil.generateToken(user);
@@ -28,8 +32,8 @@ public class AuthController {
     }
 
     @Getter
+    @ToString
     private static class KakaoUserRequest {
-        @NotNull
         private final String kakaoId;
 
         private final String nickname;
@@ -40,7 +44,7 @@ public class AuthController {
 
         @JsonCreator
         public KakaoUserRequest(
-            @JsonProperty("kakao_id") String kakaoId,
+            @JsonProperty(value = "kakao_id", required = true) String kakaoId,
             @JsonProperty("nickname") String nickname,
             @JsonProperty("thumbnail_image") String thumbnailImage,
             @JsonProperty("profile_image") String profileImage

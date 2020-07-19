@@ -1,5 +1,5 @@
 ### Kakao callback
-POST http://localhost:8080/api/kakao/callback
+POST http://localhost:8080/api/kakao/signin
 Content-Type: application/json
 
-{"test": "", "dd": "A"}
+{"k": "dd", "dd": "A"}

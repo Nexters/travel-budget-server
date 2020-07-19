@@ -15,9 +15,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private UserDetailsService userService;
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    private final UserDetailsService userService;
+
+    public WebSecurityConfig(UserDetailsService userService) {
+        this.userService = userService;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -43,6 +46,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().antMatchers("/kakao/callback", "/swagger-ui.html", "/swagger-resources", "/webjars/**", "/swagger/**");
+        web.ignoring().antMatchers("/api/kakao/signin", "/swagger-ui.html", "/swagger-resources", "/webjars/**", "/swagger/**");
     }
 }

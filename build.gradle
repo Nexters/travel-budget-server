@@ -28,6 +28,8 @@ dependencies {
     implementation 'io.springfox:springfox-swagger2:2.9.2'
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'mysql:mysql-connector-java'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
