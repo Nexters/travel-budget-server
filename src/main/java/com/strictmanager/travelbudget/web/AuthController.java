@@ -24,7 +24,7 @@ public class AuthController {
     public ResponseEntity<?> kakaoSignin(@RequestBody @Valid KakaoUserRequest kakaoUserRequest) {
         log.debug("[kakaoSignin] params - {}", kakaoUserRequest);
         // TODO: Create kakaoUser
-        UserDetails user = new User("test");
+        UserDetails user = User.builder().nickname("test").build();
         final String accessToken = jwtTokenUtil.generateToken(user);
         final String refreshToken = jwtTokenUtil.generateRefreshToken(user);
         return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken));

@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,12 +16,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class User implements UserDetails {
+
     private Long id;
     private String nickname;
 
     @Builder
-    public User(String nickname) {
-        this.id = 1L;
+    private User(
+        Long id,
+        @NonNull String nickname
+    ) {
+        this.id = id;
         this.nickname = nickname;
     }
 

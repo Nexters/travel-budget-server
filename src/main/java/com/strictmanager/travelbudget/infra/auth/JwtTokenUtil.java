@@ -8,17 +8,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 
-@Component
+@RequiredArgsConstructor
 public class JwtTokenUtil {
     private static final long JWT_ACCESS_TOKEN_VALIDITY_HOURS = 24; // 24hours
     private static final long JWT_REFRESH_TOKEN_VALIDITY_HOURS = 30 * 24; // 30days
 
-    @Value("${auth.jwt.secret}")
-    private String secret;
+    private final String secret;
 
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
