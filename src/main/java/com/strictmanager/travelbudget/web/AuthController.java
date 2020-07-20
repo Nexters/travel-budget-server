@@ -4,11 +4,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.infra.auth.JwtTokenUtil;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Objects;
 import javax.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,16 +25,40 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class AuthController {
     private final JwtTokenUtil jwtTokenUtil;
 
-    @PostMapping("/kakao/signin")
-    public ResponseEntity<?> kakaoSignin(@RequestBody @Valid KakaoUserRequest kakaoUserRequest) {
+    @PostMapping("/kakao/signup")
+    public ResponseEntity<SignUpResponse> kakaoSignin(@RequestBody @Valid KakaoUserRequest kakaoUserRequest) {
         log.debug("[kakaoSignin] params - {}", kakaoUserRequest);
         // TODO: Create kakaoUser
+        UserDetails user = User.builder().id(1L).nickname("test").build();
+        // TODO: Get from user
+        return ResponseEntity.ok(new SignUpResponse("TEST"));
+    }
+
+    @PostMapping("/auth/token/create")
+    public ResponseEntity<JwtResponse> createToken(@RequestBody @Valid TokenCreateRequest tokenCreateRequest) {
+        log.debug("[createToken] params - {}", tokenCreateRequest);
+        // TODO: Get user
         UserDetails user = User.builder().id(1L).nickname("test").build();
         final String accessToken = jwtTokenUtil.generateToken(user);
         final String refreshToken = jwtTokenUtil.generateRefreshToken(user);
         return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken));
     }
 
+    @PostMapping("/auth/token/refresh")
+    public ResponseEntity<JwtResponse> refreshToken(@RequestBody @Valid TokenRefreshRequest tokenRefreshRequest) {
+        log.debug("[refreshToken] params - {}", tokenRefreshRequest);
+        // TODO: Get user
+        UserDetails user = User.builder().id(1L).nickname("test").build();
+        if (!jwtTokenUtil.validateToken(tokenRefreshRequest.getRefreshToken(), user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        final String accessToken = jwtTokenUtil.generateToken(user);
+        final String refreshToken = jwtTokenUtil.generateRefreshToken(user);
+        return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken));
+    }
+
+    // TODO: Remove
     @GetMapping("/me")
     public ResponseEntity<?> me() {
         return ResponseEntity.ok().build();
@@ -62,14 +90,54 @@ public class AuthController {
     }
 
     @Getter
+    @ToString
+    private static class TokenCreateRequest {
+        private final String kakaoId;
+
+        @JsonCreator
+        public TokenCreateRequest(
+            @JsonProperty(value = "kakao_id", required = true) String kakaoId
+        ) {
+            this.kakaoId = kakaoId;
+        }
+    }
+
+    @Getter
+    @ToString
+    private static class TokenRefreshRequest {
+        private final String kakaoId;
+        private final String refreshToken;
+
+        @JsonCreator
+        public TokenRefreshRequest(
+            @JsonProperty(value = "kakao_id", required = true) String kakaoId,
+            @JsonProperty("refresh_token") String refreshToken
+        ) {
+            this.kakaoId = kakaoId;
+            this.refreshToken = refreshToken;
+        }
+    }
+
+    @Getter
+    private static class SignUpResponse {
+        private final String kakaoId;
+
+        private SignUpResponse(String kakaoId) {
+            this.kakaoId = Objects.requireNonNull(kakaoId);
+        }
+    }
+
+    @Getter
     private static class JwtResponse {
         private final String accessToken;
         private final String refreshToken;
+        private final ZonedDateTime expireDt;
         private final String tokenType = "bearer";
 
         private JwtResponse(String accessToken, String refreshToken) {
-            this.accessToken = accessToken;
-            this.refreshToken = refreshToken;
+            this.accessToken = Objects.requireNonNull(accessToken);
+            this.refreshToken = Objects.requireNonNull(refreshToken);
+            this.expireDt = ZonedDateTime.now().plusHours(JwtTokenUtil.JWT_ACCESS_TOKEN_VALIDITY_HOURS);
         }
     }
 }

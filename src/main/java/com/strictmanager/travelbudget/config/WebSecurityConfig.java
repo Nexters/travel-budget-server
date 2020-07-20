@@ -47,7 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
             .authorizeRequests()
-            .antMatchers("/api/kakao/signin")
+            .antMatchers("/api/kakao/signup", "/api/auth/token/*")
             .anonymous()
             .antMatchers("/api/**")
             .authenticated()
