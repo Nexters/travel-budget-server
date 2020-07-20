@@ -1,12 +1,25 @@
 ### Kakao callback
-POST http://localhost:8080/api/kakao/signin
+POST http://localhost:8080/api/kakao/signup
 Content-Type: application/json
 
-{"kakao_id": "dd", "dd": "A"}
+{
+  "kakao_id": "string",
+  "nickname": "string",
+  "thumbnail_image": "string",
+  "profile_image": "string"
+}
+
+### Create token
+POST http://localhost:9050/api/auth/token/create
+Content-Type: application/json
+
+{
+  "kakao_id": "123"
+}
 
 ### Test auth success
-GET http://localhost:8080/api/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNTk1MTY2ODcyLCJleHAiOjE1OTUyNTMyNzJ9.UXyfD6Duu-opjxDEiZqI8mh-sJctf_LI2eoKnQxPbSs
+GET http://localhost:9050/api/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNTk1MjY1MzE2LCJleHAiOjE1OTUzNTE3MTZ9.M9gi8rFmcmaV1nL7J9Q4iFqQ9-IQghHwYDb4iWLd9wc
 
 ### Test auth fail 401
-GET http://localhost:8080/api/me
+GET http://localhost:9050/api/me

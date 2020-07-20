@@ -8,10 +8,11 @@ import java.lang.annotation.Target;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Target({ ElementType.TYPE })
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @RestController
 @RequestMapping("/api/")
 public @interface ApiController {
+
 }

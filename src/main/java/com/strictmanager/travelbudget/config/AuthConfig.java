@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AuthConfig {
+
     @Bean
     public JwtTokenUtil jwtTokenUtil(@Value("${auth.jwt.secret}") String secret) {
         return new JwtTokenUtil(secret);

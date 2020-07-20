@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @RequiredArgsConstructor
 public class JwtTokenUtil {
+
     public static final long JWT_ACCESS_TOKEN_VALIDITY_HOURS = 24; // 24hours
     public static final long JWT_REFRESH_TOKEN_VALIDITY_HOURS = 30 * 24; // 30days
 
