@@ -22,7 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userService;
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtil jwtAccessTokenUtil;
 
     @Override
     protected void doFilterInternal(
@@ -40,11 +40,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         final String jwtToken = requestTokenHeader.substring(7);
         String userId = null;
         try {
-            userId = jwtTokenUtil.getUsernameFromToken(jwtToken);
+            userId = jwtAccessTokenUtil.getUsernameFromToken(jwtToken);
         } catch (IllegalArgumentException e) {
             log.warn("Unable to get JWT Token");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         } catch (ExpiredJwtException e) {
             log.warn("JWT Token has expired");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
 
         if (Objects.isNull(userId)) {
@@ -54,7 +58,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         UserDetails userDetails = userService.loadUserByUsername(userId);
-        if (Objects.nonNull(userDetails) && jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+        if (Objects.nonNull(userDetails) && jwtAccessTokenUtil.validateToken(jwtToken, userDetails)) {
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null,
                     userDetails.getAuthorities());

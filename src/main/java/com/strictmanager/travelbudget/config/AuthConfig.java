@@ -9,7 +9,18 @@ import org.springframework.context.annotation.Configuration;
 public class AuthConfig {
 
     @Bean
-    public JwtTokenUtil jwtTokenUtil(@Value("${auth.jwt.secret}") String secret) {
-        return new JwtTokenUtil(secret);
+    public JwtTokenUtil jwtAccessTokenUtil(
+        @Value("${auth.jwt.access.secret}") String secret,
+        @Value("${auth.jwt.access.expire-hours}") Long expireHours
+    ) {
+        return new JwtTokenUtil(secret, expireHours);
+    }
+
+    @Bean
+    public JwtTokenUtil jwtRefreshTokenUtil(
+        @Value("${auth.jwt.refresh.secret}") String secret,
+        @Value("${auth.jwt.refresh.expire-hours}") Long expireHours
+    ) {
+        return new JwtTokenUtil(secret, expireHours);
     }
 }

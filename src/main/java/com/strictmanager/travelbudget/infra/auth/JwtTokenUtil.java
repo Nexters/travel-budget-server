@@ -14,10 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 @RequiredArgsConstructor
 public class JwtTokenUtil {
 
-    public static final long JWT_ACCESS_TOKEN_VALIDITY_HOURS = 24; // 24hours
-    public static final long JWT_REFRESH_TOKEN_VALIDITY_HOURS = 30 * 24; // 30days
-
     private final String secret;
+    private final Long tokenValidityHours;
 
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
@@ -29,12 +27,7 @@ public class JwtTokenUtil {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        return doGenerateToken(claims, userDetails.getUsername(), JWT_ACCESS_TOKEN_VALIDITY_HOURS);
-    }
-
-    public String generateRefreshToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        return doGenerateToken(claims, userDetails.getUsername(), JWT_REFRESH_TOKEN_VALIDITY_HOURS);
+        return doGenerateToken(claims, userDetails.getUsername(), tokenValidityHours);
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {

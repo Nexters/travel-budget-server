@@ -6,7 +6,10 @@ import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.domain.user.UserException;
 import com.strictmanager.travelbudget.domain.user.UserService;
 import com.strictmanager.travelbudget.infra.auth.JwtTokenUtil;
+import java.security.Principal;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Objects;
 import javax.validation.Valid;
 import lombok.Getter;
@@ -25,7 +28,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtil jwtAccessTokenUtil;
+    private final JwtTokenUtil jwtRefreshTokenUtil;
     private final UserService userService;
 
     @PostMapping("/kakao/signup")
@@ -47,9 +51,9 @@ public class AuthController {
         log.debug("[createToken] params - {}", tokenCreateRequest);
         UserDetails user = userService.getUserByKakaoId(tokenCreateRequest.getKakaoId()).orElseThrow(UserException::new);
 
-        final String accessToken = jwtTokenUtil.generateToken(user);
-        final String refreshToken = jwtTokenUtil.generateRefreshToken(user);
-        return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken));
+        final String accessToken = jwtAccessTokenUtil.generateToken(user);
+        final String refreshToken = jwtRefreshTokenUtil.generateToken(user);
+        return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken, jwtAccessTokenUtil.getExpirationDateFromToken(accessToken)));
     }
 
     @PostMapping("/auth/token/refresh")
@@ -57,18 +61,19 @@ public class AuthController {
         log.debug("[refreshToken] params - {}", tokenRefreshRequest);
         UserDetails user = userService.getUserByKakaoId(tokenRefreshRequest.getKakaoId()).orElseThrow(UserException::new);
 
-        if (!jwtTokenUtil.validateToken(tokenRefreshRequest.getRefreshToken(), user)) {
+        if (!jwtRefreshTokenUtil.validateToken(tokenRefreshRequest.getRefreshToken(), user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        final String accessToken = jwtTokenUtil.generateToken(user);
-        final String refreshToken = jwtTokenUtil.generateRefreshToken(user);
-        return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken));
+        final String accessToken = jwtAccessTokenUtil.generateToken(user);
+        final String refreshToken = jwtRefreshTokenUtil.generateToken(user);
+        return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken, jwtAccessTokenUtil.getExpirationDateFromToken(accessToken)));
     }
 
     // TODO: Remove
     @GetMapping("/me")
-    public ResponseEntity<?> me() {
+    public ResponseEntity<?> me(final Principal principal) {
+        log.debug("userId: {}", principal.getName());
         return ResponseEntity.ok().build();
     }
 
@@ -144,10 +149,10 @@ public class AuthController {
         private final ZonedDateTime expireDt;
         private final String tokenType = "bearer";
 
-        private JwtResponse(String accessToken, String refreshToken) {
+        private JwtResponse(String accessToken, String refreshToken, Date expireDt) {
             this.accessToken = Objects.requireNonNull(accessToken);
             this.refreshToken = Objects.requireNonNull(refreshToken);
-            this.expireDt = ZonedDateTime.now().plusHours(JwtTokenUtil.JWT_ACCESS_TOKEN_VALIDITY_HOURS);
+            this.expireDt = Objects.requireNonNull(ZonedDateTime.ofInstant(expireDt.toInstant(), ZoneId.systemDefault()));
         }
     }
 }

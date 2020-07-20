@@ -11,8 +11,8 @@ public class FilterConfig {
 
     @Bean
     public JwtRequestFilter jwtRequestFilter(
-        UserDetailsService userService, JwtTokenUtil jwtTokenUtil
+        UserDetailsService userService, JwtTokenUtil jwtAccessTokenUtil
     ) {
-        return new JwtRequestFilter(userService, jwtTokenUtil);
+        return new JwtRequestFilter(userService, jwtAccessTokenUtil);
     }
 }

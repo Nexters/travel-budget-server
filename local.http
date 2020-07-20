@@ -19,7 +19,7 @@ Content-Type: application/json
 
 ### Test auth success
 GET http://localhost:9050/api/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNTk1MjY1MzE2LCJleHAiOjE1OTUzNTE3MTZ9.M9gi8rFmcmaV1nL7J9Q4iFqQ9-IQghHwYDb4iWLd9wc
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNTk1MjcyMTUyLCJleHAiOjE1OTU4NzY5NTJ9.spmd43tXAKeN5IqXF0JBB1NVGIeOZHNQUWxwBLX9mu0
 
 ### Test auth fail 401
 GET http://localhost:9050/api/me
