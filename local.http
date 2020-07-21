@@ -1,5 +1,5 @@
 ### Kakao callback
-POST http://localhost:8080/api/kakao/signup
+POST http://localhost:9050/api/kakao/signup
 Content-Type: application/json
 
 {
