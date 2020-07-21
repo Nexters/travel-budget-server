@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
@@ -40,8 +41,8 @@ public class PaymentCase extends BaseAuditingEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-//    @ManyToOne
-//    @JoinColumn(name = "budget_id")
-//    private Budget budget;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "budget_id")
+    private Budget budget;
 
 }
