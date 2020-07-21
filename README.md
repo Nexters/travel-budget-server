@@ -25,9 +25,17 @@
   - config
     - UserConfig.java
   - domain: Domain Layer. Domain model(Entity), Helper, Exception, ...
+    - outlay
+      - Budget.java
+      - Category.java
+      - PaymentCase.java
+    - plan
+      - TripMember.java
+      - TripPlan.java
     - user
       - User.java
       - UserService.java
+    - BaseAuditingEntity.java
   - infra
     - user
       - UserRepository.java
