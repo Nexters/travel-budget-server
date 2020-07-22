@@ -1,0 +1,1 @@
+ALTER TABLE `travel_budget_db`.`user` MODIFY COLUMN `kakao_id` VARCHAR(100) NOT NULL;

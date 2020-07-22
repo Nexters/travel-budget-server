@@ -1,0 +1,1 @@
+ALTER TABLE `travel_budget_db`.`trip_plan` MODIFY COLUMN `is_delete` VARCHAR(1) NOT NULL;

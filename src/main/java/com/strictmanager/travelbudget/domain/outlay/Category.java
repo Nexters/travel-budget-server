@@ -4,6 +4,8 @@ package com.strictmanager.travelbudget.domain.outlay;
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,6 +26,8 @@ public class Category extends BaseAuditingEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
+    @Enumerated(EnumType.STRING)
     private CategoryName name;
 
     @Column(length = 1000)
