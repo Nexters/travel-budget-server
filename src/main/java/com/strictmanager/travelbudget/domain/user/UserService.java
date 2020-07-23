@@ -13,7 +13,8 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
 
     public User signUp(User user) {
-        return userRepository.save(user);
+        Optional<User> existUser = getUserByKakaoId(user.getKakaoId());
+        return existUser.orElse(userRepository.save(user));
     }
 
     public Optional<User> getUserByKakaoId(String kakaoId) {
