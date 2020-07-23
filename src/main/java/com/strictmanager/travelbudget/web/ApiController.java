@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 public @interface ApiController {
 
 }
