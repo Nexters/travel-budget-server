@@ -19,7 +19,7 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     public List<TripPlan> getPlans(Long userId) {
-        return tripMemberRepository.findByUser(userId)
+        return tripMemberRepository.findByUser_Id(userId)
             .stream()
             .map(TripMember::getTripPlan)
             .filter(tripPlan -> tripPlan.getIsDelete().equals(DeleteYn.N))

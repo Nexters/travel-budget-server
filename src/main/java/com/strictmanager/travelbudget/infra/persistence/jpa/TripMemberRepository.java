@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TripMemberRepository extends JpaRepository<TripMember, Long> {
-    List<TripMember> findByUser(Long userId);
+    List<TripMember> findByUser_Id(Long userId);
 }
