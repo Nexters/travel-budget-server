@@ -150,13 +150,13 @@ public class AuthController {
 
         private final String accessToken;
         private final String refreshToken;
-        private final ZonedDateTime expireDt;
+        private final Long expireDt;
         private final String tokenType = "bearer";
 
         private JwtResponse(String accessToken, String refreshToken, Date expireDt) {
             this.accessToken = Objects.requireNonNull(accessToken);
             this.refreshToken = Objects.requireNonNull(refreshToken);
-            this.expireDt = Objects.requireNonNull(ZonedDateTime.ofInstant(expireDt.toInstant(), ZoneId.systemDefault()));
+            this.expireDt = Objects.requireNonNull(expireDt.getTime());
         }
     }
 }
