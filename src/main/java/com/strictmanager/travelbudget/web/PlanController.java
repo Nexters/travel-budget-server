@@ -10,7 +10,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import javax.validation.Valid;
+import javax.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -23,10 +23,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @Slf4j
 @ApiController
+//@DevController // TODO: 개발 단계에서 사용 2020-07-25 (kiyeon_kim1)
 @RequiredArgsConstructor
 public class PlanController {
 
     private final PlanService planService;
+    private final static Long DEV_USER_ID = 1L; // TODO: 개발단계에서 사 2020-07-25 (kiyeon_kim1)
 
     @GetMapping("/plans")
     public ResponseEntity<List<TripPlan>> getUserPlans(@AuthenticationPrincipal User user) {
@@ -34,14 +36,14 @@ public class PlanController {
         return ResponseEntity.ok(plans);
     }
 
-    @PostMapping("/plans") // TODO: plan? plans 2020-07-24 (kiyeon_kim1)
-    public ResponseEntity<Object> createPlan(@AuthenticationPrincipal User user,
-        @RequestBody @Valid PlanCreateRequest planCreateRequest) {
+    @PostMapping("/plans")
+    public ResponseEntity createPlan(@AuthenticationPrincipal User user,
+        HttpServletRequest httpServletRequest,
+        @RequestBody PlanCreateRequest planCreateRequest) {
 
-        // TODO: controller 연결 필요 2020-07-24 (kiyeon_kim1)
-
-        return ResponseEntity.ok(null);
-//        return ResponseEntity.created(linkTo(PlanController.class).toUri()).build();
+        return ResponseEntity
+            .created(URI.create(httpServletRequest.getRequestURI()))
+            .build();
     }
 
     @Getter

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PlanServiceImpl implements PlanService {
 
-//    private final TripPlanRepository tripPlanRepository;
     private final TripMemberRepository tripMemberRepository;
 
     @Override

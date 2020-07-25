@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -29,9 +30,28 @@ public class SwaggerConfig {
             .apiInfo(this.apiInfo())
             .securitySchemes(Lists.newArrayList(apiKey()))
             .securityContexts(Lists.newArrayList(securityContext()))
+            .ignoredParameterTypes(AuthenticationPrincipal.class)
             .select()
             .apis(RequestHandlerSelectors.basePackage("com.strictmanager.travelbudget.web"))
             .paths(PathSelectors.ant("/api/**"))
+            .build();
+    }
+
+    /**
+     * dev API
+     * @return
+     */
+    @Bean
+    public Docket devDocket() {
+        return new Docket(DocumentationType.SWAGGER_2)
+            .groupName("dev")
+            .apiInfo(this.apiInfo())
+            .securitySchemes(Lists.newArrayList(apiKey()))
+            .securityContexts(Lists.newArrayList(securityContext()))
+            .ignoredParameterTypes(AuthenticationPrincipal.class)
+            .select()
+            .apis(RequestHandlerSelectors.basePackage("com.strictmanager.travelbudget.web"))
+            .paths(PathSelectors.ant("/dev/**"))
             .build();
     }
 
