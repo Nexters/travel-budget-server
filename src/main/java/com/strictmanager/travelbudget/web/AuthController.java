@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,6 +28,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 @ApiController
 @RequiredArgsConstructor
 public class AuthController {
+    private static final String DEFAULT_NICKNAME = "엄격한관리자";
+    private static final String DEFAULT_PROFILE_IMAGE = "https://publicdomainvectors.org/photos/abstract-user-flat-4.png";
+    private static final String DEFAULT_THUMBNAIL_IMAGE = "https://publicdomainvectors.org/photos/abstract-user-flat-4.png";
 
     private final JwtTokenUtil jwtAccessTokenUtil;
     private final JwtTokenUtil jwtRefreshTokenUtil;
@@ -38,9 +42,9 @@ public class AuthController {
         User signUpUser = userService.signUp(
             User.builder()
                 .kakaoId(kakaoUserRequest.getKakaoId())
-                .nickname(kakaoUserRequest.getNickname())
-                .profileImage(kakaoUserRequest.getProfileImage())
-                .thumbnailImage(kakaoUserRequest.getThumbnailImage())
+                .nickname(ObjectUtils.defaultIfNull(kakaoUserRequest.getNickname(), DEFAULT_NICKNAME))
+                .profileImage(ObjectUtils.defaultIfNull(kakaoUserRequest.getProfileImage(), DEFAULT_PROFILE_IMAGE))
+                .thumbnailImage(ObjectUtils.defaultIfNull(kakaoUserRequest.getThumbnailImage(), DEFAULT_THUMBNAIL_IMAGE))
                 .build()
         );
         return ResponseEntity.ok(new SignUpResponse(signUpUser.getKakaoId()));
