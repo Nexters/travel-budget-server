@@ -14,7 +14,7 @@ public class UserService implements UserDetailsService {
 
     public User signUp(User user) {
         Optional<User> existUser = getUserByKakaoId(user.getKakaoId());
-        return existUser.orElse(userRepository.save(user));
+        return existUser.orElseGet(() -> userRepository.save(user));
     }
 
     public Optional<User> getUserByKakaoId(String kakaoId) {
