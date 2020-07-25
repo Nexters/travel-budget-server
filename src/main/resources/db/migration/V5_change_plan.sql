@@ -1,0 +1,39 @@
+-- 방의 멤버 권한 컬럼 추가
+-- 추후에 권한 추가 될 상황을 대비해, OWNER, MEMBER 으로 처리
+ALTER TABLE `travel_budget_db`.`trip_member`
+    ADD COLUMN authority
+        ENUM ('OWNER', 'MEMBER')
+        NOT NULL AFTER `id`;
+
+-- 공용 방인지, 개인 방인지 처리하는 컬럼 추가
+ALTER TABLE `travel_budget_db`.`trip_plan`
+    ADD COLUMN is_public
+        ENUM ('Y', 'N') NOT NULL DEFAULT 'N'
+        AFTER `is_delete`;
+
+-- 방장 권한을,  trip_member로 관리하기 위해 삭제
+ALTER TABLE `travel_budget_db`.`trip_plan`
+    DROP COLUMN create_user_id,
+    DROP COLUMN update_user_id;
+
+
+
+
+-- user: payment_case = 1 : N
+ALTER TABLE `travel_budget_db`.`payment_case`
+    DROP COLUMN `create_user_id`,
+    DROP COLUMN `update_user_id`,
+    ADD CONSTRAINT `fk_payment_case_user1_idx`
+        FOREIGN KEY (create_user_id)
+            REFERENCES `user` (`id`)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE;
+
+
+
+-- category 메시지 추가
+ALTER TABLE `travel_budget_db`.`category`
+    ADD COLUMN `message` VARCHAR(255)
+    AFTER icon_img;
+
+
