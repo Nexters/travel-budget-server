@@ -35,7 +35,4 @@ public class Category extends BaseAuditingEntity {
     @Column(length = 255)
     private String message;
 
-//    public enum CategoryName {
-//        C1, C2, C3, C4, C5, C6
-//    }
 }
