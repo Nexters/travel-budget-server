@@ -1,0 +1,1 @@
+ALTER TABLE `travel_budget_db`.`budget` DROP COLUMN `purpose_budget`
