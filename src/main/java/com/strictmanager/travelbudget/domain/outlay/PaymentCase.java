@@ -35,9 +35,6 @@ public class PaymentCase extends BaseAuditingEntity {
 
     private LocalDateTime paymentDt;
 
-    private Long createUserId;
-    private Long updateUserId;
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "category_id")
     private Category category;
