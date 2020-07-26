@@ -1,7 +1,7 @@
 package com.strictmanager.travelbudget.domain.plan;
 
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
-import com.strictmanager.travelbudget.domain.outlay.Budget;
+import com.strictmanager.travelbudget.domain.budget.Budget;
 import java.time.LocalDate;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;

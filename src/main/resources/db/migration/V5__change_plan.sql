@@ -11,29 +11,13 @@ ALTER TABLE `travel_budget_db`.`trip_plan`
         ENUM ('Y', 'N') NOT NULL DEFAULT 'N'
         AFTER `is_delete`;
 
--- 방장 권한을,  trip_member로 관리하기 위해 삭제
-ALTER TABLE `travel_budget_db`.`trip_plan`
-    DROP COLUMN create_user_id,
-    DROP COLUMN update_user_id;
-
-
-
 
 -- user: payment_case = 1 : N
 ALTER TABLE `travel_budget_db`.`payment_case`
     DROP COLUMN `create_user_id`,
-    DROP COLUMN `update_user_id`,
-    ADD CONSTRAINT `fk_payment_case_user1_idx`
-        FOREIGN KEY (create_user_id)
-            REFERENCES `user` (`id`)
-            ON UPDATE CASCADE
-            ON DELETE CASCADE;
-
-
+    DROP COLUMN `update_user_id`;
 
 -- category 메시지 추가
 ALTER TABLE `travel_budget_db`.`category`
     ADD COLUMN `message` VARCHAR(255)
     AFTER icon_img;
-
-

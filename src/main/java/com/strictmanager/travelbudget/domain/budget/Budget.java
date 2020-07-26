@@ -1,4 +1,4 @@
-package com.strictmanager.travelbudget.domain.outlay;
+package com.strictmanager.travelbudget.domain.budget;
 
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import javax.persistence.Entity;
@@ -22,6 +22,6 @@ public class Budget extends BaseAuditingEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long purposeBudget; // TODO: 해당 컬럼 명 변경하는게 어떨까요? payment_case 테이블에서도 조인해서 쓰기 때문에, 적절 치 않다고 보여짐
+    private Long amount;
 
 }
