@@ -1,10 +1,19 @@
 package com.strictmanager.travelbudget.web;
 
+import static java.util.Objects.requireNonNull;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.strictmanager.travelbudget.application.member.BudgetVO;
+import com.strictmanager.travelbudget.application.member.MemberBudgetService;
+import com.strictmanager.travelbudget.domain.budget.Budget;
+import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import javax.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,28 +22,72 @@ import org.springframework.web.bind.annotation.RequestBody;
 @ApiController
 @RequiredArgsConstructor
 public class BudgetController {
+
+    private final MemberBudgetService memberBudgetService;
+    private final BudgetService budgetService;
+
     @PostMapping("/budgets")
     public ResponseEntity<BudgetResponse> createBudget(@RequestBody @Valid BudgetCreateRequest request) {
-        return null;
+        final Long budgetId = memberBudgetService.createMemberBudget(
+            BudgetVO.builder()
+                .tripPlanId(request.getTripPlanId())
+                .tripMemberId(request.getTripMemberId())
+                .amount(request.getAmount())
+                .build()
+        );
+
+        return ResponseEntity.ok(new BudgetResponse(budgetId));
     }
 
-    @PutMapping("/budgets")
-    public ResponseEntity<BudgetResponse> updateBudget(@RequestBody @Valid BudgetUpdateRequest request) {
-        return null;
+    @PutMapping("/budgets/{id}")
+    public ResponseEntity<BudgetResponse> updateBudget(
+        @PathVariable @Valid Long id,
+        @RequestBody @Valid BudgetUpdateRequest request
+    ) {
+        final Budget budget = budgetService.updateBudget(id, request.getAmount());
+
+        return ResponseEntity.ok(new BudgetResponse(budget.getId()));
     }
 
     @Getter
     private static class BudgetCreateRequest {
 
+        private final Long tripPlanId;
+        private final Long tripMemberId;
+        private final Long amount;
+
+        @JsonCreator
+        private BudgetCreateRequest(
+            @JsonProperty(required = true) Long tripPlanId,
+            @JsonProperty(required = true) Long tripMemberId,
+            @JsonProperty(required = true) Long amount
+        ) {
+            this.tripPlanId = tripPlanId;
+            this.tripMemberId = tripMemberId;
+            this.amount = amount;
+        }
     }
 
     @Getter
     private static class BudgetUpdateRequest {
 
+        private final Long amount;
+
+        @JsonCreator
+        private BudgetUpdateRequest(
+            @JsonProperty(required = true) Long amount
+        ) {
+            this.amount = amount;
+        }
     }
 
     @Getter
     private static class BudgetResponse {
-        
+
+        private final Long budgetId;
+
+        private BudgetResponse(Long budgetId) {
+            this.budgetId = requireNonNull(budgetId);
+        }
     }
 }

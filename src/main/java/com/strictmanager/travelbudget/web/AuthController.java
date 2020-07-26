@@ -1,5 +1,7 @@
 package com.strictmanager.travelbudget.web;
 
+import static java.util.Objects.requireNonNull;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.strictmanager.travelbudget.domain.user.User;
@@ -7,8 +9,6 @@ import com.strictmanager.travelbudget.domain.user.UserException;
 import com.strictmanager.travelbudget.domain.user.UserService;
 import com.strictmanager.travelbudget.infra.auth.JwtTokenUtil;
 import java.security.Principal;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Objects;
 import javax.validation.Valid;
@@ -91,11 +91,11 @@ public class AuthController {
         private final String profileImage;
 
         @JsonCreator
-        public KakaoUserRequest(
-            @JsonProperty(value = "kakao_id", required = true) String kakaoId,
-            @JsonProperty("nickname") String nickname,
-            @JsonProperty("thumbnail_image") String thumbnailImage,
-            @JsonProperty("profile_image") String profileImage
+        private KakaoUserRequest(
+            @JsonProperty(required = true) String kakaoId,
+            @JsonProperty String nickname,
+            @JsonProperty String thumbnailImage,
+            @JsonProperty String profileImage
         ) {
             this.kakaoId = kakaoId;
             this.nickname = nickname;
@@ -111,8 +111,8 @@ public class AuthController {
         private final String kakaoId;
 
         @JsonCreator
-        public TokenCreateRequest(
-            @JsonProperty(value = "kakao_id", required = true) String kakaoId
+        private TokenCreateRequest(
+            @JsonProperty(required = true) String kakaoId
         ) {
             this.kakaoId = kakaoId;
         }
@@ -126,9 +126,9 @@ public class AuthController {
         private final String refreshToken;
 
         @JsonCreator
-        public TokenRefreshRequest(
-            @JsonProperty(value = "kakao_id", required = true) String kakaoId,
-            @JsonProperty(value = "refresh_token", required = true) String refreshToken
+        private TokenRefreshRequest(
+            @JsonProperty(required = true) String kakaoId,
+            @JsonProperty(required = true) String refreshToken
         ) {
             this.kakaoId = kakaoId;
             this.refreshToken = refreshToken;
@@ -141,7 +141,7 @@ public class AuthController {
         private final String kakaoId;
 
         private SignUpResponse(String kakaoId) {
-            this.kakaoId = Objects.requireNonNull(kakaoId);
+            this.kakaoId = requireNonNull(kakaoId);
         }
     }
 
@@ -154,9 +154,9 @@ public class AuthController {
         private final String tokenType = "bearer";
 
         private JwtResponse(String accessToken, String refreshToken, Date expireDt) {
-            this.accessToken = Objects.requireNonNull(accessToken);
-            this.refreshToken = Objects.requireNonNull(refreshToken);
-            this.expireDt = Objects.requireNonNull(expireDt.getTime());
+            this.accessToken = requireNonNull(accessToken);
+            this.refreshToken = requireNonNull(refreshToken);
+            this.expireDt = requireNonNull(expireDt.getTime());
         }
     }
 }

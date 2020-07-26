@@ -1,4 +1,4 @@
-package com.strictmanager.travelbudget.infra;
+package com.strictmanager.travelbudget.infra.persistence.jpa;
 
 import com.strictmanager.travelbudget.domain.user.User;
 import java.util.Optional;
