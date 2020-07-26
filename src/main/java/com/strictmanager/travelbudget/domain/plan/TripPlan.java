@@ -47,7 +47,7 @@ public class TripPlan extends BaseAuditingEntity {
     @Enumerated(EnumType.STRING)
     private YnFlag isDelete;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "budget_id")
     private Budget budget;
 

@@ -35,11 +35,11 @@ public class PaymentCase extends BaseAuditingEntity {
 
     private LocalDateTime paymentDt;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "budget_id")
     private Budget budget;
 
