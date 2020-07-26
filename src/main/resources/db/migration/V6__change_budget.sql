@@ -1,0 +1,1 @@
+ALTER TABLE `travel_budget_db`.`budget` CHANGE COLUMN `purpose_budget` `amount` BIGINT NOT NULL;
