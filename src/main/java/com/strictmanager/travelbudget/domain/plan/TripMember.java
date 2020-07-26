@@ -6,6 +6,8 @@ import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.user.User;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,6 +31,10 @@ public class TripMember extends BaseAuditingEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private Authority authority;
+
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "trip_plan_id")
     private TripPlan tripPlan;
@@ -41,5 +47,9 @@ public class TripMember extends BaseAuditingEntity {
     @JoinColumn(name = "budget_id")
     private Budget budget;
 
+
+    public enum Authority {
+        OWNER, MEMBER
+    }
 
 }

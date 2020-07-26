@@ -38,7 +38,10 @@ public class TripPlan extends BaseAuditingEntity {
     private Long updateUserId;
 
     @Enumerated(EnumType.STRING)
-    private DeleteYn isDelete;
+    private YnFlag isPublic;
+
+    @Enumerated(EnumType.STRING)
+    private YnFlag isDelete;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "budget_id")
@@ -46,7 +49,7 @@ public class TripPlan extends BaseAuditingEntity {
 
 
 
-    public enum DeleteYn {
+    public enum YnFlag {
         Y, N
     }
 

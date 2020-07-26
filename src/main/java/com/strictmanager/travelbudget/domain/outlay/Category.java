@@ -26,15 +26,13 @@ public class Category extends BaseAuditingEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    @Enumerated(EnumType.STRING)
-    private CategoryName name;
+    @Column(length = 2)
+    private String name;
 
     @Column(length = 1000)
     private String iconImg;
 
+    @Column(length = 255)
+    private String message;
 
-    public enum CategoryName {
-        C1, C2, C3, C4, C5, C6
-    }
 }
