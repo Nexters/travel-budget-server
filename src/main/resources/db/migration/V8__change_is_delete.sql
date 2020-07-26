@@ -1,0 +1,1 @@
+ALTER TABLE `travel_budget_db`.`trip_plan` ALTER is_delete SET DEFAULT 'N';

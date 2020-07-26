@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,5 +24,10 @@ public class Budget extends BaseAuditingEntity {
     private Long id;
 
     private Long amount;
+
+    @Builder
+    public Budget(Long amount) {
+       this.amount = amount;
+    }
 
 }

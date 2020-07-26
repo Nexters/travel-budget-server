@@ -3,6 +3,7 @@ package com.strictmanager.travelbudget.web;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.plan.service.PlanService;
 import com.strictmanager.travelbudget.domain.user.User;
@@ -10,6 +11,8 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalLong;
 import javax.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +42,25 @@ public class PlanController {
     @PostMapping("/plans")
     public ResponseEntity createPlan(@AuthenticationPrincipal User user,
         HttpServletRequest httpServletRequest,
-        @RequestBody PlanCreateRequest planCreateRequest) {
+        @RequestBody PlanCreateRequest param) {
+
+        Optional<Long> sharedBudgetOpt = Optional.ofNullable(param.getSharedBudget());
+
+        Budget budget = sharedBudgetOpt
+            .map(amount -> planService.createBudget(Budget.builder()
+                .amount(amount)
+                .build()))
+            .orElse(null);
+
+        planService.createPlan(TripPlan.builder()
+            .name(param.name)
+            .startDate(param.getStartDate())
+            .endDate(param.getEndDate())
+            .budget(budget)
+            .userId(user.getId())
+            .build());
+
+        // TODO: 영속성 컨텍스트 관련 수정 필요!! 2020-07-26 (kiyeon_kim1)
 
         return ResponseEntity
             .created(URI.create(httpServletRequest.getRequestURI()))
@@ -55,21 +76,25 @@ public class PlanController {
         private final LocalDate endDate;
 
         private final Long sharedBudget;
-        private final Long personalBudget;
+        //        private final Long personalBudget;
+//        private final boolean isPublic;
 
         @JsonCreator
         public PlanCreateRequest(
-            @JsonProperty(value = "name", required = true) String name,
+            @JsonProperty(value = "name", defaultValue = "여행을 떠나요") String name,
             @JsonProperty(value = "startDate", required = true) LocalDate startDate,
             @JsonProperty(value = "endDate", required = true) LocalDate endDate,
-            @JsonProperty(value = "sharedBudget", required = false) Long sharedBudget,
-            @JsonProperty(value = "personalBudget", required = true) Long personalBudget
+            @JsonProperty(value = "sharedBudget", required = false) Long sharedBudget
+//            @JsonProperty(value = "personalBudget", required = false) Long personalBudget,
+//            @JsonProperty(value = "isPublic", required = true, defaultValue = "false") boolean isPublic
         ) {
             this.name = name;
             this.startDate = startDate;
             this.endDate = endDate;
-            this.sharedBudget = Objects.requireNonNullElse(sharedBudget, 0L);
-            this.personalBudget = personalBudget;
+            this.sharedBudget = sharedBudget;
+            //Objects.requireNonNullElse(sharedBudget, 0L);
+//            this.personalBudget = personalBudget;
+//            this.isPublic = isPublic;
         }
     }
 
