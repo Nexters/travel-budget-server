@@ -38,11 +38,6 @@ public class Budget extends BaseAuditingEntity {
 
     private Long amount;
 
-    @Builder
-    public Budget(Long amount) {
-       this.amount = amount;
-    }
-
     public void changeAmount(Long amount) {
         this.amount = amount;
     }
