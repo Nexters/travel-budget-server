@@ -2,6 +2,7 @@ package com.strictmanager.travelbudget.web;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
@@ -34,15 +35,18 @@ public class PlanController {
     private final BudgetService budgetService;
 
     @GetMapping("/plans")
-    public ResponseEntity<List<TripPlan>> getUserPlans(@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<TripPlan>> retrievePlans(@AuthenticationPrincipal User user) {
         List<TripPlan> plans = planService.getPlans(user.getId());
+
         return ResponseEntity.ok(plans);
     }
 
     @PostMapping("/plans")
     public ResponseEntity createPlan(@AuthenticationPrincipal User user,
         HttpServletRequest httpServletRequest,
-        @RequestBody PlanCreateRequest param) {
+        @RequestBody CreatePlanRequest param) {
+
+        planService.checkDateValidation(param.getStartDate(), param.getEndDate());
 
         Optional<Long> sharedBudgetOpt = Optional.ofNullable(param.getSharedBudget());
 
@@ -72,9 +76,16 @@ public class PlanController {
             .build();
     }
 
+//    @Getter
+//    @ToString
+//    private class RetrievePlansRequest {
+//        private final String ;
+//
+//    }
+
     @Getter
     @ToString
-    private static class PlanCreateRequest {
+    public static class CreatePlanRequest {
 
         private final String name;
         private final LocalDate startDate;
@@ -83,11 +94,11 @@ public class PlanController {
         private final Long sharedBudget;
 
         @JsonCreator
-        public PlanCreateRequest(
+        public CreatePlanRequest(
             @JsonProperty(value = "name", defaultValue = "여행을 떠나요") String name,
-            @JsonProperty(value = "startDate", required = true) LocalDate startDate,
-            @JsonProperty(value = "endDate", required = true) LocalDate endDate,
-            @JsonProperty(value = "sharedBudget", required = false) Long sharedBudget
+            @JsonProperty(value = "start_date", required = true) LocalDate startDate,
+            @JsonProperty(value = "end_date", required = true) LocalDate endDate,
+            @JsonProperty(value = "shared_budget", required = false) Long sharedBudget
         ) {
             this.name = name;
             this.startDate = startDate;

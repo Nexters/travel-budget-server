@@ -83,7 +83,7 @@ public class AuthController {
 
     @Getter
     @ToString
-    private static class KakaoUserRequest {
+    public static class KakaoUserRequest {
 
         private final String kakaoId;
         private final String nickname;
@@ -106,7 +106,7 @@ public class AuthController {
 
     @Getter
     @ToString
-    private static class TokenCreateRequest {
+    public static class TokenCreateRequest {
 
         private final String kakaoId;
 
@@ -133,24 +133,24 @@ public class AuthController {
     }
 
     @Getter
-    private static class SignUpResponse {
+    public static class SignUpResponse {
 
         private final String kakaoId;
 
-        private SignUpResponse(String kakaoId) {
+        public SignUpResponse(String kakaoId) {
             this.kakaoId = requireNonNull(kakaoId);
         }
     }
 
     @Getter
-    private static class JwtResponse {
+    public static class JwtResponse {
 
         private final String accessToken;
         private final String refreshToken;
         private final Long expireDt;
         private final String tokenType = "Bearer";
 
-        private JwtResponse(String accessToken, String refreshToken, Date expireDt) {
+        public JwtResponse(String accessToken, String refreshToken, Date expireDt) {
             this.accessToken = requireNonNull(accessToken);
             this.refreshToken = requireNonNull(refreshToken);
             this.expireDt = requireNonNull(expireDt.getTime());
