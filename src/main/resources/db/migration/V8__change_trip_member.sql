@@ -1,1 +1,0 @@
-ALTER TABLE `travel_budget_db`.`trip_member` MODIFY `budget_id` BIGINT NULL;
