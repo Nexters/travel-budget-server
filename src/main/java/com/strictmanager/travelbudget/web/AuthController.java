@@ -4,13 +4,14 @@ import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.domain.user.UserException;
 import com.strictmanager.travelbudget.domain.user.UserService;
 import com.strictmanager.travelbudget.infra.auth.JwtTokenUtil;
 import java.security.Principal;
 import java.util.Date;
-import java.util.Objects;
 import javax.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -82,6 +83,7 @@ public class AuthController {
     }
 
     @Getter
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     @ToString
     private static class KakaoUserRequest {
 
@@ -105,6 +107,7 @@ public class AuthController {
     }
 
     @Getter
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     @ToString
     private static class TokenCreateRequest {
 
@@ -119,6 +122,7 @@ public class AuthController {
     }
 
     @Getter
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     @ToString
     private static class TokenRefreshRequest {
 

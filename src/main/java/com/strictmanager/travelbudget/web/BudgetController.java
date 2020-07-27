@@ -4,6 +4,8 @@ import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.strictmanager.travelbudget.application.member.BudgetVO;
 import com.strictmanager.travelbudget.application.member.MemberBudgetService;
 import com.strictmanager.travelbudget.domain.budget.Budget;
@@ -50,6 +52,7 @@ public class BudgetController {
     }
 
     @Getter
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     private static class BudgetCreateRequest {
 
         private final Long tripPlanId;
@@ -69,6 +72,7 @@ public class BudgetController {
     }
 
     @Getter
+    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     private static class BudgetUpdateRequest {
 
         private final Long amount;
