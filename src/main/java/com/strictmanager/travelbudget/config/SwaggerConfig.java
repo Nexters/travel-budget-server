@@ -37,24 +37,6 @@ public class SwaggerConfig {
             .build();
     }
 
-    /**
-     * dev API
-     * @return
-     */
-    @Bean
-    public Docket devDocket() {
-        return new Docket(DocumentationType.SWAGGER_2)
-            .groupName("dev")
-            .apiInfo(this.apiInfo())
-            .securitySchemes(Lists.newArrayList(apiKey()))
-            .securityContexts(Lists.newArrayList(securityContext()))
-            .ignoredParameterTypes(AuthenticationPrincipal.class)
-            .select()
-            .apis(RequestHandlerSelectors.basePackage("com.strictmanager.travelbudget.web"))
-            .paths(PathSelectors.ant("/dev/**"))
-            .build();
-    }
-
     private ApiKey apiKey() {
         return new ApiKey("JWT", AUTHORIZATION, "header");
     }

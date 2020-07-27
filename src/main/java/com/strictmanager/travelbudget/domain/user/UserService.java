@@ -1,12 +1,14 @@
 package com.strictmanager.travelbudget.domain.user;
 
-import com.strictmanager.travelbudget.infra.UserRepository;
+import com.strictmanager.travelbudget.infra.persistence.jpa.UserRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
+@Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 

@@ -1,5 +1,7 @@
 package com.strictmanager.travelbudget.domain.budget;
 
+import static java.util.Objects.requireNonNull;
+
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -19,15 +21,20 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Budget extends BaseAuditingEntity {
 
+    @Builder(toBuilder = true)
+    private Budget(
+        Long amount
+    ) {
+        this.amount = requireNonNull(amount);
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long amount;
 
-    @Builder
-    public Budget(Long amount) {
-       this.amount = amount;
+    public void changeAmount(Long amount) {
+        this.amount = amount;
     }
-
 }

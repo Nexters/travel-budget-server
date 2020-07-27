@@ -2,6 +2,7 @@ package com.strictmanager.travelbudget.domain.outlay;
 
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import com.strictmanager.travelbudget.domain.budget.Budget;
+import com.strictmanager.travelbudget.domain.user.User;
 import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -30,17 +31,25 @@ public class PaymentCase extends BaseAuditingEntity {
     private Long id;
 
     private Long price;
+
     @Column(length = 255)
     private String title;
 
     private LocalDateTime paymentDt;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "budget_id")
     private Budget budget;
 
+    @OneToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "create_user_id")
+    private User createUser;
+
+    @OneToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "update_user_id")
+    private User updateUser;
 }

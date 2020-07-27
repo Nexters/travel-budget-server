@@ -1,10 +1,11 @@
 package com.strictmanager.travelbudget.domain.user;
 
+import static java.util.Objects.requireNonNull;
+
+import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -12,16 +13,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +29,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @EqualsAndHashCode(of = "id")
 @EntityListeners({AuditingEntityListener.class})
 @Getter
-public class User implements UserDetails {
+public class User extends BaseAuditingEntity implements UserDetails {
 
     @Builder
     private User(
@@ -41,10 +38,10 @@ public class User implements UserDetails {
         String profileImage,
         String thumbnailImage
     ) {
-        this.kakaoId = Objects.requireNonNull(kakaoId);
-        this.nickname = Objects.requireNonNull(nickname);
-        this.profileImage = Objects.requireNonNull(profileImage);
-        this.thumbnailImage = Objects.requireNonNull(thumbnailImage);
+        this.kakaoId = requireNonNull(kakaoId);
+        this.nickname = requireNonNull(nickname);
+        this.profileImage = requireNonNull(profileImage);
+        this.thumbnailImage = requireNonNull(thumbnailImage);
     }
 
     @Id
@@ -63,16 +60,6 @@ public class User implements UserDetails {
 
     @Column(name = "thumbnail_image")
     private String thumbnailImage;
-
-    @CreatedDate
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "create_dt", updatable = false)
-    private Date createDt;
-
-    @LastModifiedDate
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "update_dt")
-    private Date updateDt;
 
     @Transient
     private String password;
