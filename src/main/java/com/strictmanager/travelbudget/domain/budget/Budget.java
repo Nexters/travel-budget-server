@@ -10,12 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.lang.Nullable;
 
 @Entity
 @Table(name = "budget")
@@ -26,10 +23,8 @@ public class Budget extends BaseAuditingEntity {
 
     @Builder(toBuilder = true)
     private Budget(
-        @Nullable Long id,
         Long amount
     ) {
-        this.id = id;
         this.amount = requireNonNull(amount);
     }
 
