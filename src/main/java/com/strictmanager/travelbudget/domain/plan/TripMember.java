@@ -16,6 +16,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,15 +36,15 @@ public class TripMember extends BaseAuditingEntity {
     private Authority authority;
 
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "trip_plan_id")
     private TripPlan tripPlan;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "budget_id")
     private Budget budget;
 
@@ -51,5 +52,14 @@ public class TripMember extends BaseAuditingEntity {
     public enum Authority {
         OWNER, MEMBER
     }
+
+    @Builder
+    public TripMember(Authority authority, TripPlan tripPlan, User user, Budget budget) {
+        this.authority = authority;
+        this.tripPlan = tripPlan;
+        this.user = user;
+        this.budget = budget;
+    }
+
 
 }
