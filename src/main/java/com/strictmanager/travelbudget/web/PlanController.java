@@ -9,22 +9,29 @@ import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import com.strictmanager.travelbudget.domain.plan.TripMember;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
+import com.strictmanager.travelbudget.domain.plan.TripPlan.YnFlag;
 import com.strictmanager.travelbudget.domain.plan.service.PlanService;
 import com.strictmanager.travelbudget.domain.user.User;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @ApiController
@@ -35,10 +42,37 @@ public class PlanController {
     private final BudgetService budgetService;
 
     @GetMapping("/plans")
-    public ResponseEntity<List<TripPlan>> retrievePlans(@AuthenticationPrincipal User user) {
-        List<TripPlan> plans = planService.getPlans(user.getId());
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<RetrievePlansResponse>> retrievePlans(
+        @AuthenticationPrincipal User user,
+        @RequestParam(name = "isComing") boolean isComing) {
 
-        return ResponseEntity.ok(plans);
+        Stream<TripPlan> plans;
+        if (isComing) {
+            List<TripPlan> doingPlans = planService.getDoingPlans(user.getId());
+            doingPlans.addAll(planService.getComingPlans(user.getId()));
+
+            plans = doingPlans.stream();
+        } else {
+            plans = planService.getFinishPlans(user.getId());
+        }
+
+        List<RetrievePlansResponse> plansResponse = plans
+            .map(plan -> RetrievePlansResponse.builder()
+                .name(plan.getName())
+                .startDate(plan.getStartDate())
+                .endDate(plan.getEndDate())
+                .amount(
+                    Objects.requireNonNullElseGet(plan.getBudget(),
+                        () -> Budget.builder().amount(-1L).build())
+                        .getAmount())
+                .isPublic(plan.getIsPublic())
+                .userCount(
+                    plan.getTripMembers().size())
+                .build())
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(plansResponse);
     }
 
     @PostMapping("/plans")
@@ -76,12 +110,36 @@ public class PlanController {
             .build();
     }
 
-//    @Getter
-//    @ToString
-//    private class RetrievePlansRequest {
-//        private final String ;
-//
-//    }
+    @Getter
+    @ToString
+    private static class RetrievePlansResponse {
+
+        private final String name;
+        private final LocalDate startDate;
+        private final LocalDate endDate;
+        private final Long amount; // null이면 미지정 text 출력
+        private final int userCount;
+
+        @Builder
+        @JsonCreator
+        public RetrievePlansResponse(
+            @JsonProperty(value = "name") String name,
+            @JsonProperty(value = "start_date") LocalDate startDate,
+            @JsonProperty(value = "end_date") LocalDate endDate,
+            @JsonProperty(value = "amount") Long amount,
+            @JsonProperty(value = "user_count") int userCount,
+            @JsonProperty(value = "is_public") YnFlag isPublic
+        ) {
+            this.name = name;
+            this.startDate = startDate;
+            this.endDate = endDate;
+            this.amount = amount;
+            this.userCount = userCount;
+            this.isPublic = isPublic;
+        }
+
+        private final YnFlag isPublic;
+    }
 
     @Getter
     @ToString

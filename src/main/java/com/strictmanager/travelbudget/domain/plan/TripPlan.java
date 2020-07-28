@@ -3,6 +3,7 @@ package com.strictmanager.travelbudget.domain.plan;
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
@@ -50,6 +52,9 @@ public class TripPlan extends BaseAuditingEntity {
     @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "budget_id")
     private Budget budget;
+
+    @OneToMany(mappedBy = "tripPlan")
+    private List<TripMember> tripMembers;
 
     public enum YnFlag {
         Y, N
