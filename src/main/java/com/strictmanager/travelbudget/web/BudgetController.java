@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.strictmanager.travelbudget.application.member.BudgetVO;
-import com.strictmanager.travelbudget.application.member.MemberBudgetService;
+import com.strictmanager.travelbudget.application.member.MemberBudgetManager;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import javax.validation.Valid;
@@ -25,12 +25,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class BudgetController {
 
-    private final MemberBudgetService memberBudgetService;
+    private final MemberBudgetManager memberBudgetManager;
     private final BudgetService budgetService;
 
     @PostMapping("/budgets")
     public ResponseEntity<BudgetResponse> createBudget(@RequestBody @Valid BudgetCreateRequest request) {
-        final Long budgetId = memberBudgetService.createMemberBudget(
+        final Long budgetId = memberBudgetManager.createMemberBudget(
             BudgetVO.builder()
                 .tripPlanId(request.getTripPlanId())
                 .tripMemberId(request.getTripMemberId())
@@ -61,9 +61,9 @@ public class BudgetController {
 
         @JsonCreator
         private BudgetCreateRequest(
-            @JsonProperty(required = true) Long tripPlanId,
-            @JsonProperty(required = true) Long tripMemberId,
-            @JsonProperty(required = true) Long amount
+            @JsonProperty(value = "trip_plan_id", required = true) Long tripPlanId,
+            @JsonProperty(value = "trip_member_id", required = true) Long tripMemberId,
+            @JsonProperty(value = "amount", required = true) Long amount
         ) {
             this.tripPlanId = tripPlanId;
             this.tripMemberId = tripMemberId;
@@ -79,7 +79,7 @@ public class BudgetController {
 
         @JsonCreator
         private BudgetUpdateRequest(
-            @JsonProperty(required = true) Long amount
+            @JsonProperty(value = "amount", required = true) Long amount
         ) {
             this.amount = amount;
         }

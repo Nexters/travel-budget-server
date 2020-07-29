@@ -1,4 +1,4 @@
-package com.strictmanager.travelbudget.domain.outlay;
+package com.strictmanager.travelbudget.domain.payment;
 
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import com.strictmanager.travelbudget.domain.budget.Budget;
@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -37,9 +39,8 @@ public class PaymentCase extends BaseAuditingEntity {
 
     private LocalDateTime paymentDt;
 
-    @OneToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @Enumerated(EnumType.STRING)
+    private PaymentCaseCategory category;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "budget_id")

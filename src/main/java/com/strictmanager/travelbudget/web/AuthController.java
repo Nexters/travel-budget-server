@@ -4,13 +4,10 @@ import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.domain.user.UserException;
 import com.strictmanager.travelbudget.domain.user.UserService;
 import com.strictmanager.travelbudget.infra.auth.JwtTokenUtil;
-import java.security.Principal;
 import java.util.Date;
 import javax.validation.Valid;
 import lombok.Getter;
@@ -85,7 +82,6 @@ public class AuthController {
     }
 
     @Getter
-    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     @ToString
     private static class KakaoUserRequest {
 
@@ -96,10 +92,10 @@ public class AuthController {
 
         @JsonCreator
         private KakaoUserRequest(
-            @JsonProperty(required = true) String kakaoId,
-            @JsonProperty String nickname,
-            @JsonProperty String thumbnailImage,
-            @JsonProperty String profileImage
+            @JsonProperty(value = "kakao_id", required = true) String kakaoId,
+            @JsonProperty(value = "nickname") String nickname,
+            @JsonProperty(value = "thumbnail_image") String thumbnailImage,
+            @JsonProperty(value = "profile_image") String profileImage
         ) {
             this.kakaoId = kakaoId;
             this.nickname = nickname;
@@ -109,7 +105,6 @@ public class AuthController {
     }
 
     @Getter
-    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     @ToString
     private static class TokenCreateRequest {
 
@@ -117,14 +112,13 @@ public class AuthController {
 
         @JsonCreator
         private TokenCreateRequest(
-            @JsonProperty(required = true) String kakaoId
+            @JsonProperty(value = "kakao_id", required = true) String kakaoId
         ) {
             this.kakaoId = kakaoId;
         }
     }
 
     @Getter
-    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     @ToString
     private static class TokenRefreshRequest {
 
@@ -132,7 +126,7 @@ public class AuthController {
 
         @JsonCreator
         private TokenRefreshRequest(
-            @JsonProperty(required = true) String refreshToken
+            @JsonProperty(value = "refresh_token", required = true) String refreshToken
         ) {
             this.refreshToken = refreshToken;
         }
@@ -154,7 +148,7 @@ public class AuthController {
         private final String accessToken;
         private final String refreshToken;
         private final Long expireDt;
-        private final String tokenType = "bearer";
+        private final String tokenType = "Bearer";
 
         private JwtResponse(String accessToken, String refreshToken, Date expireDt) {
             this.accessToken = requireNonNull(accessToken);
