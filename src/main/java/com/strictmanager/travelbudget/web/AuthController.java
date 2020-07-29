@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,7 +65,8 @@ public class AuthController {
     @PostMapping("/auth/token/refresh")
     public ResponseEntity<JwtResponse> refreshToken(@RequestBody @Valid TokenRefreshRequest tokenRefreshRequest) {
         log.debug("[refreshToken] params - {}", tokenRefreshRequest);
-        UserDetails user = userService.getUserByKakaoId(tokenRefreshRequest.getKakaoId()).orElseThrow(UserException::new);
+        String userId = jwtRefreshTokenUtil.getUsernameFromToken(tokenRefreshRequest.getRefreshToken());
+        UserDetails user = userService.loadUserByUsername(userId);
 
         if (!jwtRefreshTokenUtil.validateToken(tokenRefreshRequest.getRefreshToken(), user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -77,8 +79,8 @@ public class AuthController {
 
     // TODO: Remove
     @GetMapping("/me")
-    public ResponseEntity<?> me(final Principal principal) {
-        log.debug("userId: {}", principal.getName());
+    public ResponseEntity<?> me(@AuthenticationPrincipal User user) {
+        log.debug("userId: {}", user.getId());
         return ResponseEntity.ok().build();
     }
 
@@ -126,15 +128,12 @@ public class AuthController {
     @ToString
     private static class TokenRefreshRequest {
 
-        private final String kakaoId;
         private final String refreshToken;
 
         @JsonCreator
         private TokenRefreshRequest(
-            @JsonProperty(required = true) String kakaoId,
             @JsonProperty(required = true) String refreshToken
         ) {
-            this.kakaoId = kakaoId;
             this.refreshToken = refreshToken;
         }
     }
