@@ -1,1 +1,0 @@
-ALTER TABLE `travel_budget_db`.`category` MODIFY COLUMN `name` VARCHAR(2) NOT NULL;

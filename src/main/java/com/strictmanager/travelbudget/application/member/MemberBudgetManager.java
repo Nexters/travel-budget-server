@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class MemberBudgetService {
+public class MemberBudgetManager {
 
     private final BudgetService budgetService;
 

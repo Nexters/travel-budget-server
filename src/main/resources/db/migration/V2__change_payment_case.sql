@@ -1,0 +1,1 @@
+ALTER TABLE `travel_budget_db`.`payment_case` CHANGE COLUMN `category_id` `category` VARCHAR(10) NOT NULL;

@@ -16,8 +16,3 @@ ALTER TABLE `travel_budget_db`.`trip_plan`
 ALTER TABLE `travel_budget_db`.`payment_case`
     DROP COLUMN `create_user_id`,
     DROP COLUMN `update_user_id`;
-
-# category 메시지 추가
-ALTER TABLE `travel_budget_db`.`category`
-    ADD COLUMN `message` VARCHAR(255)
-    AFTER icon_img;
