@@ -3,6 +3,7 @@ package com.strictmanager.travelbudget.domain.plan;
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.CascadeType;
@@ -54,7 +55,7 @@ public class TripPlan extends BaseAuditingEntity {
     private Budget budget;
 
     @OneToMany(mappedBy = "tripPlan")
-    private List<TripMember> tripMembers;
+    private List<TripMember> tripMembers = new ArrayList<>();
 
     public enum YnFlag {
         Y, N

@@ -7,6 +7,7 @@ import com.strictmanager.travelbudget.domain.plan.TripMember;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.plan.service.PlanService;
+import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.web.PlanController.PlanResponse;
 import java.util.List;
 import java.util.Objects;
@@ -23,19 +24,20 @@ public class PlanManager {
     private final PlanService planService;
     private final BudgetService budgetService;
 
-    public List<PlanResponse> retrievePlans(Long userId, boolean isComing) {
+    public List<PlanResponse> retrievePlans(User user, boolean isComing) {
 
         Stream<TripPlan> planStream;
         if (isComing) {
-            List<TripPlan> doingPlans = planService.getDoingPlans(userId);
-            doingPlans.addAll(planService.getComingPlans(userId));
+            List<TripPlan> doingPlans = planService.getDoingPlans(user);
+            doingPlans.addAll(planService.getComingPlans(user));
 
             planStream = doingPlans.stream();
         } else {
-            planStream = planService.getFinishPlans(userId);
+            planStream = planService.getFinishPlans(user);
         }
 
         return planStream.map(plan -> PlanResponse.builder()
+            .id(plan.getId())
             .name(plan.getName())
             .startDate(plan.getStartDate())
             .endDate(plan.getEndDate())
