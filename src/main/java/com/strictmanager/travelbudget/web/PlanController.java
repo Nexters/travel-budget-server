@@ -2,7 +2,6 @@ package com.strictmanager.travelbudget.web;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
@@ -43,7 +42,7 @@ public class PlanController {
 
     @GetMapping("/plans")
     @Transactional(readOnly = true)
-    public ResponseEntity<List<RetrievePlansResponse>> retrievePlans(
+    public ResponseEntity<List<PlanResponse>> retrievePlans(
         @AuthenticationPrincipal User user,
         @RequestParam(name = "isComing") boolean isComing) {
 
@@ -57,8 +56,8 @@ public class PlanController {
             plans = planService.getFinishPlans(user.getId());
         }
 
-        List<RetrievePlansResponse> plansResponse = plans
-            .map(plan -> RetrievePlansResponse.builder()
+        List<PlanResponse> plansResponse = plans
+            .map(plan -> PlanResponse.builder()
                 .name(plan.getName())
                 .startDate(plan.getStartDate())
                 .endDate(plan.getEndDate())
@@ -112,7 +111,7 @@ public class PlanController {
 
     @Getter
     @ToString
-    private static class RetrievePlansResponse {
+    private static class PlanResponse {
 
         private final String name;
         private final LocalDate startDate;
@@ -122,7 +121,7 @@ public class PlanController {
 
         @Builder
         @JsonCreator
-        public RetrievePlansResponse(
+        public PlanResponse(
             @JsonProperty(value = "name") String name,
             @JsonProperty(value = "start_date") LocalDate startDate,
             @JsonProperty(value = "end_date") LocalDate endDate,
