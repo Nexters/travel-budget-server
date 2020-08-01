@@ -1,17 +1,13 @@
 package com.strictmanager.travelbudget.domain.plan.service;
 
-import com.strictmanager.travelbudget.domain.plan.PlanException;
 import com.strictmanager.travelbudget.domain.plan.TripMember;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.plan.TripPlan.YnFlag;
-import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.infra.persistence.jpa.TripMemberRepository;
 import com.strictmanager.travelbudget.infra.persistence.jpa.TripPlanRepository;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,33 +18,15 @@ public class PlanService {
     private final TripPlanRepository tripPlanRepository;
     private final TripMemberRepository tripMemberRepository;
 
-     public List<TripPlan> getComingPlans(User user) {
-        return tripMemberRepository.findByUserAndTripPlanEndDateAfter(user, LocalDate.now())
+    public List<TripPlan> getPlans(Long userId) {
+        return tripMemberRepository.findByUser_Id(userId)
+            .stream()
             .map(TripMember::getTripPlan)
-            .filter(tripPlan -> tripPlan.getStartDate().compareTo(LocalDate.now()) > 0)
             .filter(tripPlan -> tripPlan.getIsDelete().equals(YnFlag.N))
-            .sorted(Comparator.comparing(TripPlan::getStartDate))
+            .sorted(Comparator.comparing(TripPlan::getStartDate).reversed())
             .collect(Collectors.toList());
     }
 
-    public List<TripPlan> getDoingPlans(User user) {
-        return tripMemberRepository.findByUserAndTripPlanStartDateBeforeAndTripPlanEndDateGreaterThanEqual(user, LocalDate.now(), LocalDate.now())
-            .map(TripMember::getTripPlan)
-            .filter(tripPlan -> tripPlan.getIsDelete().equals(YnFlag.N))
-            .sorted(Comparator.comparing(TripPlan::getStartDate))
-            .collect(Collectors.toList());
-    }
-
-    public Stream<TripPlan> getFinishPlans(User user) {
-        return tripMemberRepository.findByUserAndTripPlanEndDateBefore(user, LocalDate.now())
-            .map(TripMember::getTripPlan)
-            .filter(tripPlan -> tripPlan.getIsDelete().equals(YnFlag.N))
-            .sorted(Comparator.comparing(TripPlan::getStartDate).reversed());
-    }
-
-    public TripPlan getPlan(Long planId) {
-         return tripPlanRepository.findById(planId).orElseThrow();
-    }
 
     public TripPlan createPlan(TripPlan tripPlan) {
         return tripPlanRepository.save(tripPlan);
@@ -56,12 +34,6 @@ public class PlanService {
 
     public TripMember createTripMember(TripMember tripMember) {
         return tripMemberRepository.save(tripMember);
-    }
-
-    public void checkDateValidation(LocalDate startDate, LocalDate endDate) {
-        if (startDate.compareTo(endDate) > 0) {
-            throw new PlanException();
-        }
     }
 
 }

@@ -3,8 +3,7 @@ package com.strictmanager.travelbudget.domain.payment;
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.user.User;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -38,9 +37,7 @@ public class PaymentCase extends BaseAuditingEntity {
     @Column(length = 255)
     private String title;
 
-    private LocalDate paymentDate;
-    private LocalTime paymentTime;
-
+    private LocalDateTime paymentDt;
 
     @Enumerated(EnumType.STRING)
     private PaymentCaseCategory category;
