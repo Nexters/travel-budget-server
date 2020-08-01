@@ -2,13 +2,19 @@ package com.strictmanager.travelbudget.application.member;
 
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
-import com.strictmanager.travelbudget.domain.plan.PlanVO;
+import com.strictmanager.travelbudget.domain.payment.PaymentCase;
+import com.strictmanager.travelbudget.domain.payment.PaymentCaseService;
 import com.strictmanager.travelbudget.domain.plan.TripMember;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
+import com.strictmanager.travelbudget.domain.plan.TripPlan.YnFlag;
 import com.strictmanager.travelbudget.domain.plan.service.PlanService;
 import com.strictmanager.travelbudget.domain.user.User;
+import com.strictmanager.travelbudget.web.PlanController.PlanDetailResponse;
 import com.strictmanager.travelbudget.web.PlanController.PlanResponse;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,6 +29,7 @@ public class PlanManager {
 
     private final PlanService planService;
     private final BudgetService budgetService;
+    private final PaymentCaseService paymentCaseService;
 
     public List<PlanResponse> retrievePlans(User user, boolean isComing) {
 
@@ -79,6 +86,39 @@ public class PlanManager {
             .user(vo.getCreateUser())
             .build());
 
+
+    }
+
+    public PlanDetailResponse retrievePlanDetail(User user, Long planId, LocalDate date) {
+        Budget budget;
+        TripPlan plan = planService.getPlan(planId);
+
+        if (plan.getIsPublic().equals(YnFlag.Y)) {
+            budget = budgetService.getPublicBudget(plan);
+        } else {
+            budget = budgetService.getPersonalBudget(user, plan);
+        }
+
+        List<PaymentCase> readyPaymentCase = paymentCaseService.getPaymentCaseByReady(budget);
+
+        List<PaymentCase> paymentCases = Optional.ofNullable(date)
+            .map(dt -> paymentCaseService.getPaymentCaseByDate(budget, dt))
+            .orElse(readyPaymentCase);
+
+        long readyUsedPrice = readyPaymentCase.stream().mapToLong(PaymentCase::getPrice).sum();
+
+        Period period = plan.getStartDate().until(plan.getEndDate());
+
+        return PlanDetailResponse.builder()
+            .purposeAmount(budget.getAmount())
+            .suggestAmount(
+                (double) ((budget.getAmount() - readyUsedPrice) / (period.getDays() + 1)))
+            .totalUseAmount(paymentCaseService.getPaymentUseAmount(budget))
+            .dayUseAmount(paymentCases.stream()
+                .mapToLong(PaymentCase::getPrice).sum())
+            .dates(new ArrayList<>()) // TODO:  2020-07-31 (kiyeon_kim1)
+            .paymentCases(new ArrayList<>()) // TODO: 수정 예 2020-07-31 (kiyeon_kim1)
+            .build();
 
     }
 }

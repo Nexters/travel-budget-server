@@ -4,25 +4,20 @@ package com.strictmanager.travelbudget.web;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.strictmanager.travelbudget.application.member.MemberBudgetManager;
+import com.strictmanager.travelbudget.application.member.PaymentVO;
 import com.strictmanager.travelbudget.application.member.PlanManager;
-import com.strictmanager.travelbudget.domain.budget.Budget;
+import com.strictmanager.travelbudget.application.member.PlanVO;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
-import com.strictmanager.travelbudget.domain.payment.PaymentCase;
 import com.strictmanager.travelbudget.domain.payment.PaymentCaseService;
-import com.strictmanager.travelbudget.domain.plan.PlanVO;
-import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.plan.TripPlan.YnFlag;
 import com.strictmanager.travelbudget.domain.plan.service.PlanService;
 import com.strictmanager.travelbudget.domain.user.User;
 import java.net.URI;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
 import lombok.Builder;
@@ -80,45 +75,18 @@ public class PlanController {
             .build();
     }
 
+
     @GetMapping("/plans/{id}")
     @Transactional(readOnly = true)
     public ResponseEntity<PlanDetailResponse> planDetail(@AuthenticationPrincipal User user,
         @PathVariable(value = "id") Long planId,
         @RequestParam(value = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
 
-        Budget budget;
-        TripPlan plan = planService.getPlan(planId);
+        PlanDetailResponse planDetailResponse = planManager.retrievePlanDetail(user, planId, date);
 
-        if (plan.getIsPublic().equals(YnFlag.Y)) {
-            budget = budgetService.getPublicBudget(plan);
-        } else {
-            budget = budgetService.getPersonalBudget(user, plan);
-        }
-
-        Optional<LocalDate> dateOptional = Optional.ofNullable(date);
-        List<PaymentCase> paymentCases = dateOptional
-            .map(dt -> paymentCaseService.getPaymentCaseByDate(budget, dt))
-            .orElseGet(() -> paymentCaseService.getPaymentCaseByReady(budget));
-
-        long readyDuringSum = paymentCaseService.getPaymentCaseByReady(budget)
-            .stream().mapToLong(PaymentCase::getPrice)
-            .sum();
-
-        Period period = plan.getStartDate().until(plan.getEndDate());
-
-        PlanDetailResponse response = PlanDetailResponse.builder()
-            .purposeAmount(budget.getAmount())
-            .suggestAmount(
-                (double) ((budget.getAmount() - readyDuringSum) / (period.getDays() + 1)))
-            .totalUseAmount(paymentCaseService.getPaymentUseAmount(budget))
-            .dayUseAmount(paymentCases.stream()
-                .mapToLong(PaymentCase::getPrice).sum())
-            .dates(new ArrayList<>()) // TODO:  2020-07-31 (kiyeon_kim1)
-            .paymentCases(new ArrayList<>()) // TODO: 수정 예 2020-07-31 (kiyeon_kim1)
-            .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(planDetailResponse);
     }
+
 
     @Getter
     public static class PlanDetailResponse {
@@ -129,13 +97,12 @@ public class PlanController {
         private final Long dayUseAmount; // 일자별 사용된 예산
 
         private final List<LocalDate> dates;
-        private final List<PaymentCase> paymentCases;
+        private final List<PaymentVO> paymentCases;
 
         @Builder
         public PlanDetailResponse(Long purposeAmount, Double suggestAmount, Long totalUseAmount,
-            TripPlan plan,
             Long dayUseAmount, List<LocalDate> dates,
-            List<PaymentCase> paymentCases) {
+            List<PaymentVO> paymentCases) {
 
             this.purposeAmount = purposeAmount;
             this.suggestAmount = suggestAmount;

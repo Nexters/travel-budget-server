@@ -1,4 +1,4 @@
-package com.strictmanager.travelbudget.domain.plan;
+package com.strictmanager.travelbudget.application.member;
 
 import com.strictmanager.travelbudget.domain.user.User;
 import java.time.LocalDate;

@@ -27,9 +27,6 @@ public class BudgetService {
         return budgetRepository.save(budget);
     }
 
-    // TODO: PlanId를 받아와서, budget을 가져오는데,
-    //  BudgetService? 혹은 PlanService?
-    //  2020-07-30 (kiyeon_kim1)
 
     public Budget getPublicBudget(TripPlan plan) {
         return plan.getBudget();
