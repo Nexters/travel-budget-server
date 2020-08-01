@@ -7,11 +7,9 @@ import com.strictmanager.travelbudget.application.member.MemberBudgetManager;
 import com.strictmanager.travelbudget.application.member.PaymentVO;
 import com.strictmanager.travelbudget.application.member.PlanManager;
 import com.strictmanager.travelbudget.application.member.PlanVO;
-import com.strictmanager.travelbudget.domain.budget.BudgetService;
-import com.strictmanager.travelbudget.domain.payment.PaymentCaseService;
 import com.strictmanager.travelbudget.domain.plan.TripPlan.YnFlag;
-import com.strictmanager.travelbudget.domain.plan.service.PlanService;
 import com.strictmanager.travelbudget.domain.user.User;
+import io.swagger.annotations.ApiImplicitParam;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -20,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +39,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class PlanController {
 
-    private final BudgetService budgetService;
-    private final PlanService planService;
-    private final PaymentCaseService paymentCaseService;
 
 
     private final PlanManager planManager;
@@ -59,7 +55,7 @@ public class PlanController {
     }
 
     @PostMapping("/plans")
-    public ResponseEntity createPlan(@AuthenticationPrincipal User user,
+    public ResponseEntity createPlan(@AuthenticationPrincipal @Valid User user,
         HttpServletRequest httpServletRequest,
         @RequestBody CreatePlanRequest param) {
 
@@ -77,6 +73,7 @@ public class PlanController {
 
 
     @GetMapping("/plans/{id}")
+    @ApiImplicitParam(name = "date", value = "yyyy-MM-dd")
     @Transactional(readOnly = true)
     public ResponseEntity<PlanDetailResponse> planDetail(@AuthenticationPrincipal User user,
         @PathVariable(value = "id") Long planId,
@@ -108,7 +105,6 @@ public class PlanController {
             this.suggestAmount = suggestAmount;
             this.totalUseAmount = totalUseAmount;
             this.dayUseAmount = dayUseAmount;
-
             this.dates = dates;
             this.paymentCases = paymentCases;
         }

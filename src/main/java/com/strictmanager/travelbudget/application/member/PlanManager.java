@@ -8,12 +8,11 @@ import com.strictmanager.travelbudget.domain.plan.TripMember;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.plan.TripPlan.YnFlag;
-import com.strictmanager.travelbudget.domain.plan.service.PlanService;
+import com.strictmanager.travelbudget.domain.plan.PlanService;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.web.PlanController.PlanDetailResponse;
 import com.strictmanager.travelbudget.web.PlanController.PlanResponse;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -107,18 +106,38 @@ public class PlanManager {
 
         long readyUsedPrice = readyPaymentCase.stream().mapToLong(PaymentCase::getPrice).sum();
 
-        Period period = plan.getStartDate().until(plan.getEndDate());
+        int planDayCnt = plan.getStartDate().until(plan.getEndDate()).getDays() + 1;
 
         return PlanDetailResponse.builder()
             .purposeAmount(budget.getAmount())
             .suggestAmount(
-                (double) ((budget.getAmount() - readyUsedPrice) / (period.getDays() + 1)))
+                (double) ((budget.getAmount() - readyUsedPrice) / planDayCnt))
             .totalUseAmount(paymentCaseService.getPaymentUseAmount(budget))
-            .dayUseAmount(paymentCases.stream()
-                .mapToLong(PaymentCase::getPrice).sum())
-            .dates(new ArrayList<>()) // TODO:  2020-07-31 (kiyeon_kim1)
-            .paymentCases(new ArrayList<>()) // TODO: 수정 예 2020-07-31 (kiyeon_kim1)
+            .dayUseAmount(paymentCases.stream().mapToLong(PaymentCase::getPrice).sum())
+            .dates(getTripDates(plan.getStartDate(), planDayCnt))
+            .paymentCases(convertPaymentVO(paymentCases))
             .build();
+    }
 
+    private List<PaymentVO> convertPaymentVO(List<PaymentCase> paymentCases) {
+        return paymentCases.stream()
+            .map(paymentCase -> PaymentVO.builder()
+                .id(paymentCase.getId())
+                .title(paymentCase.getTitle())
+                .price(paymentCase.getPrice())
+                .category(paymentCase.getCategory())
+                .build())
+            .collect(Collectors.toList());
+    }
+
+    private List<LocalDate> getTripDates(LocalDate startDate, int planDaysCnt) {
+        List<LocalDate> tripDates = new ArrayList<>();
+        LocalDate targetDate = startDate;
+
+        for (int i = 1; i < planDaysCnt; i++) {
+            tripDates.add(targetDate);
+            targetDate = targetDate.plusDays(1);
+        }
+        return tripDates;
     }
 }

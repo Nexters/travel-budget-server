@@ -1,8 +1,5 @@
-package com.strictmanager.travelbudget.domain.plan.service;
+package com.strictmanager.travelbudget.domain.plan;
 
-import com.strictmanager.travelbudget.domain.plan.PlanException;
-import com.strictmanager.travelbudget.domain.plan.TripMember;
-import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.plan.TripPlan.YnFlag;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.infra.persistence.jpa.TripMemberRepository;
