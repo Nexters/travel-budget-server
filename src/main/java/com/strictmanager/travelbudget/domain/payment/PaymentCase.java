@@ -1,5 +1,7 @@
 package com.strictmanager.travelbudget.domain.payment;
 
+import static java.util.Objects.requireNonNull;
+
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.user.User;
@@ -17,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +30,25 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Getter
 public class PaymentCase extends BaseAuditingEntity {
+
+    @Builder
+    private PaymentCase(
+        Long price,
+        String title,
+        LocalDateTime paymentDt,
+        PaymentCaseCategory category,
+        Budget budget,
+        User createUser,
+        User updateUser
+    ) {
+        this.price = requireNonNull(price);
+        this.title = requireNonNull(title);
+        this.paymentDt = requireNonNull(paymentDt);
+        this.category = requireNonNull(category);
+        this.budget = requireNonNull(budget);
+        this.createUser = requireNonNull(createUser);
+        this.updateUser = requireNonNull(updateUser);
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,4 +75,24 @@ public class PaymentCase extends BaseAuditingEntity {
     @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "update_user_id")
     private User updateUser;
+
+    public PaymentCase changePrice(Long price) {
+        this.price = price;
+        return this;
+    }
+
+    public PaymentCase changeTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
+    public PaymentCase changePaymentDt(LocalDateTime paymentDt) {
+        this.paymentDt = paymentDt;
+        return this;
+    }
+
+    public PaymentCase changeCategory(PaymentCaseCategory category) {
+        this.category = category;
+        return this;
+    }
 }
