@@ -19,6 +19,10 @@ public class UserService implements UserDetailsService {
         return existUser.orElseGet(() -> userRepository.save(user));
     }
 
+    public User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(UserException::new);
+    }
+
     public Optional<User> getUserByKakaoId(String kakaoId) {
         return userRepository.findByKakaoId(kakaoId);
     }

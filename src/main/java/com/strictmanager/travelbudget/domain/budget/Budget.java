@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Budget extends BaseAuditingEntity {
 
-    @Builder(toBuilder = true)
+    @Builder
     private Budget(
         Long createUserId,
         Long amount,
@@ -42,11 +42,13 @@ public class Budget extends BaseAuditingEntity {
 
     private Long paymentAmount;
 
-    public void changeAmount(Long amount) {
+    public Budget changeAmount(Long amount) {
         this.amount = amount;
+        return this;
     }
 
-    public void changePaymentAmount(Long paymentAmount) {
+    public Budget changePaymentAmount(Long paymentAmount) {
         this.paymentAmount = paymentAmount;
+        return this;
     }
 }
