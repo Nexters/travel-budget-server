@@ -14,9 +14,24 @@ public class BudgetService {
         return budgetRepository.save(budget);
     }
 
-    public Budget updateBudget(Long budgetId, Long amount) {
+    public Budget updateBudgetAmount(Long userId, Long budgetId, Long amount) {
         final Budget budget = budgetRepository.findById(budgetId).orElseThrow(BudgetException::new);
+        if (!budget.getCreateUserId().equals(userId)) {
+            throw new BudgetException();
+        }
+
         budget.changeAmount(amount);
+
+        return budgetRepository.save(budget);
+    }
+
+    public Budget updateBudgetPaymentAmount(Long userId, Long budgetId, Long paymentAmount) {
+        final Budget budget = budgetRepository.findById(budgetId).orElseThrow(BudgetException::new);
+        if (!budget.getCreateUserId().equals(userId)) {
+            throw new BudgetException();
+        }
+
+        budget.changePaymentAmount(paymentAmount);
 
         return budgetRepository.save(budget);
     }
