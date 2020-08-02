@@ -36,6 +36,7 @@ public class PaymentCase extends BaseAuditingEntity {
         Long price,
         String title,
         LocalDateTime paymentDt,
+//        LocalDate paymentDate,
         PaymentCaseCategory category,
         Budget budget,
         User createUser,
@@ -60,6 +61,9 @@ public class PaymentCase extends BaseAuditingEntity {
     private String title;
 
     private LocalDateTime paymentDt;
+//    private LocalDate paymentDate;
+//    private LocalTime paymentTime;
+
 
     @Enumerated(EnumType.STRING)
     private PaymentCaseCategory category;
