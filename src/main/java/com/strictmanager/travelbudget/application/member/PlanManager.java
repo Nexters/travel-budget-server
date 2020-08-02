@@ -4,11 +4,11 @@ import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
 import com.strictmanager.travelbudget.domain.payment.PaymentCaseService;
+import com.strictmanager.travelbudget.domain.plan.PlanService;
 import com.strictmanager.travelbudget.domain.plan.TripMember;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.plan.TripPlan.YnFlag;
-import com.strictmanager.travelbudget.domain.plan.PlanService;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.web.PlanController.PlanDetailResponse;
 import com.strictmanager.travelbudget.web.PlanController.PlanResponse;
@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +62,7 @@ public class PlanManager {
 
     }
 
+    @Transactional
     public void createPlan(PlanVO vo) {
         planService.checkDateValidation(vo.getStartDate(), vo.getEndDate());
 

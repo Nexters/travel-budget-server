@@ -3,6 +3,7 @@ package com.strictmanager.travelbudget.web;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.annotations.VisibleForTesting;
 import com.strictmanager.travelbudget.application.member.MemberBudgetManager;
 import com.strictmanager.travelbudget.application.member.PaymentVO;
 import com.strictmanager.travelbudget.application.member.PlanManager;
@@ -46,7 +47,7 @@ public class PlanController {
 
     @GetMapping("/plans")
     @Transactional(readOnly = true)
-    public ResponseEntity<List<PlanResponse>> retrievePlans(
+    public ResponseEntity<List<PlanResponse>> getPlans(
         @AuthenticationPrincipal User user,
         @RequestParam(name = "isComing") boolean isComing) {
         List<PlanResponse> responses = planManager.retrievePlans(user, isComing);
@@ -76,7 +77,7 @@ public class PlanController {
     @GetMapping("/plans/{id}")
     @ApiImplicitParam(name = "date", value = "yyyy-MM-dd")
     @Transactional(readOnly = true)
-    public ResponseEntity<PlanDetailResponse> planDetail(@AuthenticationPrincipal User user,
+    public ResponseEntity<PlanDetailResponse> getPlanDetail(@AuthenticationPrincipal User user,
         @PathVariable(value = "id") Long planId,
         @RequestParam(value = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
 
@@ -183,7 +184,8 @@ public class PlanController {
 
     @Getter
     @ToString
-    public static class CreatePlanRequest {
+    @VisibleForTesting
+    private static class CreatePlanRequest {
 
         private final String name;
         private final LocalDate startDate;
