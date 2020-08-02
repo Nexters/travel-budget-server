@@ -23,18 +23,30 @@ public class Budget extends BaseAuditingEntity {
 
     @Builder(toBuilder = true)
     private Budget(
-        Long amount
+        Long createUserId,
+        Long amount,
+        Long paymentAmount
     ) {
+        this.createUserId = requireNonNull(createUserId);
         this.amount = requireNonNull(amount);
+        this.paymentAmount = requireNonNull(paymentAmount);
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long createUserId;
+
     private Long amount;
+
+    private Long paymentAmount;
 
     public void changeAmount(Long amount) {
         this.amount = amount;
+    }
+
+    public void changePaymentAmount(Long paymentAmount) {
+        this.paymentAmount = paymentAmount;
     }
 }
