@@ -61,6 +61,7 @@ public class PaymentCase extends BaseAuditingEntity {
 
     private LocalDateTime paymentDt;
 
+
     @Enumerated(EnumType.STRING)
     private PaymentCaseCategory category;
 
