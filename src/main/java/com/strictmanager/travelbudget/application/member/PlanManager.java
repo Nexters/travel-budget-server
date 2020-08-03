@@ -33,7 +33,7 @@ public class PlanManager {
 
     private final long INIT_AMOUNT = 0L;
 
-    public List<PlanResponse> retrievePlans(User user, boolean isComing) {
+    public List<PlanResponse> getPlans(User user, boolean isComing) {
 
         Stream<TripPlan> planStream;
         if (isComing) {
@@ -94,7 +94,7 @@ public class PlanManager {
 
     }
 
-    public PlanDetailResponse retrievePlanDetail(User user, Long planId, LocalDate date) {
+    public PlanDetailResponse getPlanDetail(User user, Long planId) {
         Budget budget;
         TripPlan plan = planService.getPlan(planId);
 
@@ -104,13 +104,10 @@ public class PlanManager {
             budget = budgetService.getPersonalBudget(user, plan);
         }
 
-        List<PaymentCase> readyPaymentCase = paymentCaseService.getPaymentCaseByReady(budget);
-
-        List<PaymentCase> paymentCases = Optional.ofNullable(date)
-            .map(dt -> paymentCaseService.getPaymentCaseByDate(budget, dt))
-            .orElse(readyPaymentCase);
-
-        long readyUsedPrice = readyPaymentCase.stream().mapToLong(PaymentCase::getPrice).sum();
+        long readyUsedPrice = paymentCaseService.getPaymentCaseByReady(budget)
+            .stream()
+            .mapToLong(PaymentCase::getPrice)
+            .sum();
 
         int planDayCnt = plan.getStartDate().until(plan.getEndDate()).getDays() + 1;
 
@@ -119,21 +116,8 @@ public class PlanManager {
             .suggestAmount(
                 (double) ((budget.getAmount() - readyUsedPrice) / planDayCnt))
             .totalUseAmount(paymentCaseService.getPaymentUseAmount(budget))
-            .dayUseAmount(paymentCases.stream().mapToLong(PaymentCase::getPrice).sum())
             .dates(getTripDates(plan.getStartDate(), planDayCnt))
-            .paymentCases(convertPaymentVO(paymentCases))
             .build();
-    }
-
-    private List<PaymentVO> convertPaymentVO(List<PaymentCase> paymentCases) {
-        return paymentCases.stream()
-            .map(paymentCase -> PaymentVO.builder()
-                .id(paymentCase.getId())
-                .title(paymentCase.getTitle())
-                .price(paymentCase.getPrice())
-                .category(paymentCase.getCategory())
-                .build())
-            .collect(Collectors.toList());
     }
 
     private List<LocalDate> getTripDates(LocalDate startDate, int planDaysCnt) {

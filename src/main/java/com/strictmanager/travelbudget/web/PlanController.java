@@ -5,12 +5,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.strictmanager.travelbudget.application.member.MemberBudgetManager;
-import com.strictmanager.travelbudget.application.member.PaymentVO;
 import com.strictmanager.travelbudget.application.member.PlanManager;
 import com.strictmanager.travelbudget.application.member.PlanVO;
 import com.strictmanager.travelbudget.domain.plan.TripPlan.YnFlag;
 import com.strictmanager.travelbudget.domain.user.User;
-import io.swagger.annotations.ApiImplicitParam;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,7 +23,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +38,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class PlanController {
 
 
-
     private final PlanManager planManager;
     private final MemberBudgetManager memberBudgetManager;
 
@@ -50,7 +46,7 @@ public class PlanController {
     public ResponseEntity<List<PlanResponse>> getPlans(
         @AuthenticationPrincipal User user,
         @RequestParam(name = "isComing") boolean isComing) {
-        List<PlanResponse> responses = planManager.retrievePlans(user, isComing);
+        List<PlanResponse> responses = planManager.getPlans(user, isComing);
 
         return ResponseEntity.ok(responses);
     }
@@ -75,13 +71,11 @@ public class PlanController {
 
 
     @GetMapping("/plans/{id}")
-    @ApiImplicitParam(name = "date", value = "yyyy-MM-dd")
     @Transactional(readOnly = true)
     public ResponseEntity<PlanDetailResponse> getPlanDetail(@AuthenticationPrincipal User user,
-        @PathVariable(value = "id") Long planId,
-        @RequestParam(value = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        @PathVariable(value = "id") Long planId) {
 
-        PlanDetailResponse planDetailResponse = planManager.retrievePlanDetail(user, planId, date);
+        PlanDetailResponse planDetailResponse = planManager.getPlanDetail(user, planId);
 
         return ResponseEntity.ok(planDetailResponse);
     }
@@ -93,22 +87,16 @@ public class PlanController {
         private final Long purposeAmount; //전체예산
         private final Double suggestAmount; // 일자별 제안 예
         private final Long totalUseAmount; // 사용된 예산
-        private final Long dayUseAmount; // 일자별 사용된 예산
 
         private final List<LocalDate> dates;
-        private final List<PaymentVO> paymentCases;
 
         @Builder
         public PlanDetailResponse(Long purposeAmount, Double suggestAmount, Long totalUseAmount,
-            Long dayUseAmount, List<LocalDate> dates,
-            List<PaymentVO> paymentCases) {
-
+            List<LocalDate> dates) {
             this.purposeAmount = purposeAmount;
             this.suggestAmount = suggestAmount;
             this.totalUseAmount = totalUseAmount;
-            this.dayUseAmount = dayUseAmount;
             this.dates = dates;
-            this.paymentCases = paymentCases;
         }
     }
 
