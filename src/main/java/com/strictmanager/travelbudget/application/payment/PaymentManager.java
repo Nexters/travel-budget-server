@@ -4,9 +4,12 @@ import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
 import com.strictmanager.travelbudget.domain.payment.PaymentCaseService;
+import com.strictmanager.travelbudget.domain.payment.PaymentException;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.domain.user.UserService;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,14 @@ public class PaymentManager {
     private final PaymentCaseService paymentCaseService;
     private final BudgetService budgetService;
     private final UserService userService;
+
+    public List<PaymentCase> getPaymentCases(Long userId, Long budgetId, LocalDate paymentDate) {
+        final Budget budget = budgetService.getBudget(budgetId);
+        if (!budget.getCreateUserId().equals(userId)) {
+            throw new PaymentException();
+        }
+        return paymentCaseService.getPaymentCaseByDate(budget, paymentDate);
+    }
 
     @Transactional
     public Long createPaymentCase(PaymentVO paymentVO) {

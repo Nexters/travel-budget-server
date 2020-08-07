@@ -1,6 +1,7 @@
 package com.strictmanager.travelbudget.domain.payment;
 
 import com.strictmanager.travelbudget.application.payment.PaymentVO;
+import java.time.LocalTime;
 import org.springframework.stereotype.Service;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.infra.persistence.jpa.PaymentCaseRepository;
@@ -43,20 +44,14 @@ public class PaymentCaseService {
         return paymentCaseRepository.findByBudget(budget);
     }
 
-    public List<PaymentCase> getPaymentCaseByDate(Budget budget, LocalDate localDate) {
-//        return paymentCaseRepository.findByBudgetAndPaymentDate(budget, localDate)
-        return paymentCaseRepository.findByBudgetAndPaymentDt(budget, localDate)
-            .sorted(Comparator.comparing(PaymentCase::getPaymentDt).reversed())
-//            .sorted(Comparator.comparing(PaymentCase::getPaymentTime).reversed())
-            // TODO: 동작 확인 필요 2020-08-02 (kiyeon_kim1)
-            .collect(Collectors.toList());
+    public List<PaymentCase> getPaymentCaseByDate(Budget budget, LocalDate paymentDate) {
+        return paymentCaseRepository.findByBudgetAndPaymentDtBetweenOrderByPaymentDtDesc(
+            budget, paymentDate.atStartOfDay(), paymentDate.atTime(LocalTime.MAX)
+        );
     }
 
     public List<PaymentCase> getPaymentCaseByReady(Budget budget) {
-//        return paymentCaseRepository.findByBudgetAndPaymentDateIsNull(budget)
-        return paymentCaseRepository.findByBudgetAndPaymentDtIsNull(budget)
-            .sorted(Comparator.comparing(PaymentCase::getCreateDt).reversed())
-            .collect(Collectors.toList());
+        return paymentCaseRepository.findByBudgetAndPaymentDtIsNullOrderByCreateDtDesc(budget);
     }
 
     public long getPaymentUseAmount(Budget budget) {
