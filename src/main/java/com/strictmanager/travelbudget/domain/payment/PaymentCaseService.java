@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.infra.persistence.jpa.PaymentCaseRepository;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 @Service

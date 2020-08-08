@@ -1,14 +1,18 @@
 package com.strictmanager.travelbudget.domain.budget;
 
+import com.strictmanager.travelbudget.domain.plan.TripMember;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.infra.persistence.jpa.BudgetRepository;
 import com.strictmanager.travelbudget.infra.persistence.jpa.TripMemberRepository;
 import com.strictmanager.travelbudget.infra.persistence.jpa.TripPlanRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class BudgetService {
 
@@ -47,10 +51,9 @@ public class BudgetService {
         return plan.getBudget();
     }
 
-    public Budget getPersonalBudget(User user, TripPlan plan) {
-        return tripMemberRepository.findByUserAndTripPlan(user, plan).orElseThrow()
-            .getBudget();
+    public Optional<Budget> getPersonalBudget(User user, TripPlan plan) {
+        return tripMemberRepository.findByUserAndTripPlan(user, plan)
+            .map(TripMember::getBudget);
     }
-
 
 }

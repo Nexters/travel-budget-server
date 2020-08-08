@@ -2,26 +2,27 @@ package com.strictmanager.travelbudget.application.member;
 
 import static java.util.Objects.requireNonNull;
 
+import com.strictmanager.travelbudget.domain.user.User;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 public class BudgetVO {
-    private final Long userId;
-    private final Long tripPlanId;
-    private final Long tripMemberId;
+
+    private final User user;
+    private final Long planId;
     private final Long amount;
+    private final Long memberId;
 
     @Builder
     public BudgetVO(
-        Long userId,
-        Long tripPlanId,
-        Long tripMemberId,
-        Long amount
-    ) {
-        this.userId = userId;
-        this.tripPlanId = requireNonNull(tripPlanId);
-        this.tripMemberId = requireNonNull(tripMemberId);
+        User user,
+        Long planId,
+        Long amount,
+        Long memberId) {
+        this.user = requireNonNull(user);
+        this.planId = requireNonNull(planId);
         this.amount = requireNonNull(amount);
+        this.memberId = requireNonNull(memberId);
     }
 }
