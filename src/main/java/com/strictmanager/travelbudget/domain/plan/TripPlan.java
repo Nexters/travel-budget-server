@@ -1,6 +1,7 @@
 package com.strictmanager.travelbudget.domain.plan;
 
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
+import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -56,10 +57,6 @@ public class TripPlan extends BaseAuditingEntity {
 
     @OneToMany(mappedBy = "tripPlan")
     private List<TripMember> tripMembers = new ArrayList<>();
-
-    public enum YnFlag {
-        Y, N
-    }
 
     @Builder
     public TripPlan(String name, LocalDate startDate, LocalDate endDate, Long userId, Budget budget) {

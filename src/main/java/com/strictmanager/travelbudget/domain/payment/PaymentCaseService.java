@@ -1,6 +1,7 @@
 package com.strictmanager.travelbudget.domain.payment;
 
 import com.strictmanager.travelbudget.application.payment.PaymentVO;
+import com.strictmanager.travelbudget.domain.YnFlag;
 import java.time.LocalTime;
 import org.springframework.stereotype.Service;
 import com.strictmanager.travelbudget.domain.budget.Budget;
@@ -38,10 +39,6 @@ public class PaymentCaseService {
         );
     }
 
-    public List<PaymentCase> getPaymentCase(Budget budget) {
-        return paymentCaseRepository.findByBudget(budget);
-    }
-
     public List<PaymentCase> getPaymentCaseByDate(Budget budget, LocalDate paymentDate) {
         return paymentCaseRepository.findByBudgetAndPaymentDtBetweenOrderByPaymentDtDesc(
             budget, paymentDate.atStartOfDay(), paymentDate.atTime(LocalTime.MAX)
@@ -49,7 +46,7 @@ public class PaymentCaseService {
     }
 
     public List<PaymentCase> getPaymentCaseByReady(Budget budget) {
-        return paymentCaseRepository.findByBudgetAndPaymentDtIsNullOrderByCreateDtDesc(budget);
+        return paymentCaseRepository.findByBudgetAndIsReadyOrderByPaymentDtDesc(budget, YnFlag.Y);
     }
 
     public long getPaymentUseAmount(Budget budget) {

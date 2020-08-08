@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.strictmanager.travelbudget.application.member.MemberBudgetManager;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import com.strictmanager.travelbudget.domain.user.User;
@@ -28,9 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class TripBudgetController {
 
-    private final MemberBudgetManager memberBudgetManager;
     private final BudgetService budgetService;
-
 
     @PutMapping("/budgets/{id}")
     @ApiOperation(value = "목표 예산 변경")

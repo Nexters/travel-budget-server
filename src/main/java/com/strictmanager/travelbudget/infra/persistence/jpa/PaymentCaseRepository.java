@@ -1,5 +1,6 @@
 package com.strictmanager.travelbudget.infra.persistence.jpa;
 
+import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
 import java.time.LocalDateTime;
@@ -14,5 +15,5 @@ public interface PaymentCaseRepository extends JpaRepository<PaymentCase, Long> 
 
     List<PaymentCase> findByBudgetAndPaymentDtBetweenOrderByPaymentDtDesc(Budget budget, LocalDateTime startDt, LocalDateTime endDt);
 
-    List<PaymentCase> findByBudgetAndPaymentDtIsNullOrderByCreateDtDesc(Budget budget);
+    List<PaymentCase> findByBudgetAndIsReadyOrderByPaymentDtDesc(Budget budget, YnFlag isReady);
 }

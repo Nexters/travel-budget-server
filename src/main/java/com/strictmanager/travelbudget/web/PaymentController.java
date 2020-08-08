@@ -6,10 +6,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.strictmanager.travelbudget.application.payment.PaymentManager;
 import com.strictmanager.travelbudget.application.payment.PaymentVO;
+import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
 import com.strictmanager.travelbudget.domain.payment.PaymentCaseCategory;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.utils.LocalDateTimeUtils;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,13 +40,15 @@ public class PaymentController {
 
     private final PaymentManager paymentManager;
 
+    @ApiOperation(value = "지출내역 조회")
     @GetMapping("/payments")
     public ResponseEntity<List<PaymentResponse>> getPayments(
         @AuthenticationPrincipal User user,
-        @RequestParam(name = "budget_id") Long budgetId,
-        @RequestParam(name = "payment_dt") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate paymentDt
+        @ApiParam(value = "예산 ID", required = true) @RequestParam(name = "budget_id") Long budgetId,
+        @ApiParam(value = "사전 지출 여부", required = false, example = "Y") @RequestParam(name = "is_ready", required = false, defaultValue = "N") YnFlag isReady,
+        @ApiParam(value = "조회할 날짜", required = false, example = "2020-08-01") @RequestParam(name = "payment_dt", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate paymentDt
     ) {
-        final List<PaymentCase> paymentCases = paymentManager.getPaymentCases(user.getId(), budgetId, paymentDt);
+        final List<PaymentCase> paymentCases = paymentManager.getPaymentCases(user.getId(), budgetId, isReady, paymentDt);
 
         return ResponseEntity.ok(
             paymentCases.stream()
@@ -51,11 +58,13 @@ public class PaymentController {
                         paymentCase.getTitle(),
                         paymentCase.getPaymentDt(),
                         paymentCase.getCategory(),
-                        paymentCase.getBudget().getId()))
+                        paymentCase.getBudget().getId(),
+                        paymentCase.getIsReady()))
                 .collect(Collectors.toList())
         );
     }
 
+    @ApiOperation(value = "지출내역 기록")
     @PostMapping("/payments")
     public ResponseEntity<CreatePaymentResponse> createPayment(
         @AuthenticationPrincipal User user,
@@ -69,12 +78,14 @@ public class PaymentController {
                 .price(request.getPrice())
                 .paymentCaseCategory(request.getCategory())
                 .paymentDt(request.getPaymentDt())
+                .isReady(request.getIsReady())
                 .build()
         );
 
         return ResponseEntity.ok(new CreatePaymentResponse(paymentCaseId));
     }
 
+    @ApiOperation(value = "지출내역 수정")
     @PutMapping("/payments/{paymentId}")
     public ResponseEntity<CreatePaymentResponse> updatePayment(
         @AuthenticationPrincipal User user,
@@ -91,20 +102,26 @@ public class PaymentController {
                 .price(request.getPrice())
                 .paymentCaseCategory(request.getCategory())
                 .paymentDt(request.getPaymentDt())
+                .isReady(request.getIsReady())
                 .build()
         );
 
         return ResponseEntity.ok(new CreatePaymentResponse(paymentCaseId));
     }
 
+    @ApiModel
     @Getter
     private static class PaymentRequest {
 
         private final String title;
         private final Long price;
+        @ApiModelProperty(value = "카테고리", required = true, example = "TRAFFIC")
         private final PaymentCaseCategory category;
         private final Long budgetId;
+        @ApiModelProperty(value = "지출 시간", dataType = "Long", required = true, example = "1596867429")
         private final LocalDateTime paymentDt;
+        @ApiModelProperty(value = "사전 기록", required = true, example = "N")
+        private final YnFlag isReady;
 
         @JsonCreator
         private PaymentRequest(
@@ -112,13 +129,15 @@ public class PaymentController {
             @JsonProperty(value = "price", required = true) Long price,
             @JsonProperty(value = "category", required = true) PaymentCaseCategory category,
             @JsonProperty(value = "budget_id", required = true) Long budgetId,
-            @JsonProperty(value = "payment_dt", required = true) Long paymentDt
+            @JsonProperty(value = "payment_dt", required = true) Long paymentDt,
+            @JsonProperty(value = "is_ready", required = true) YnFlag isReady
         ) {
             this.title = title;
             this.price = price;
             this.category = category;
             this.budgetId = budgetId;
             this.paymentDt = LocalDateTimeUtils.convertToLocalDateTime(paymentDt);
+            this.isReady = isReady;
         }
     }
 
@@ -140,19 +159,22 @@ public class PaymentController {
         private final Long paymentDt;
         private final PaymentCaseCategory category;
         private final Long budgetId;
+        private final YnFlag isReady;
 
         public PaymentResponse(
             Long price,
             String title,
             LocalDateTime paymentDt,
             PaymentCaseCategory category,
-            Long budgetId
+            Long budgetId,
+            YnFlag isReady
         ) {
             this.price = price;
             this.title = title;
             this.paymentDt = LocalDateTimeUtils.convertToTimestamp(paymentDt);
             this.category = category;
             this.budgetId = budgetId;
+            this.isReady = isReady;
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.strictmanager.travelbudget.domain.plan;
 
-import com.strictmanager.travelbudget.domain.plan.TripPlan.YnFlag;
+import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.infra.persistence.jpa.TripMemberRepository;
 import com.strictmanager.travelbudget.infra.persistence.jpa.TripPlanRepository;

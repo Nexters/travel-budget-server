@@ -1,5 +1,6 @@
 package com.strictmanager.travelbudget.application.member;
 
+import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import com.strictmanager.travelbudget.domain.member.MemberService;
