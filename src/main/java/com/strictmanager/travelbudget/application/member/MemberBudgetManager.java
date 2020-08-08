@@ -19,7 +19,7 @@ public class MemberBudgetManager {
     public Long createMemberBudget(BudgetVO budgetVO) {
         final Budget budget = budgetService.createBudget(
             Budget.builder()
-                .createUserId(budgetVO.getUser().getId())
+                .createUserId(budgetVO.getUserId())
                 .amount(budgetVO.getAmount())
                 .paymentAmount(0L)
                 .build()
