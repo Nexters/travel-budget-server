@@ -8,6 +8,7 @@ import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.domain.user.UserException;
 import com.strictmanager.travelbudget.domain.user.UserService;
 import com.strictmanager.travelbudget.infra.auth.JwtTokenUtil;
+import io.swagger.annotations.ApiOperation;
 import java.util.Date;
 import javax.validation.Valid;
 import lombok.Getter;
@@ -35,6 +36,7 @@ public class AuthController {
     private final JwtTokenUtil jwtRefreshTokenUtil;
     private final UserService userService;
 
+    @ApiOperation(value = "카카오 로그인")
     @PostMapping("/kakao/signup")
     public ResponseEntity<SignUpResponse> kakaoSignin(@RequestBody @Valid KakaoUserRequest kakaoUserRequest) {
         log.debug("[kakaoSignin] params - {}", kakaoUserRequest);
@@ -49,6 +51,7 @@ public class AuthController {
         return ResponseEntity.ok(new SignUpResponse(signUpUser.getKakaoId()));
     }
 
+    @ApiOperation(value = "JWT 토큰 생성")
     @PostMapping("/auth/token/create")
     public ResponseEntity<JwtResponse> createToken(@RequestBody @Valid TokenCreateRequest tokenCreateRequest) {
         log.debug("[createToken] params - {}", tokenCreateRequest);
@@ -59,6 +62,7 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken, jwtAccessTokenUtil.getExpirationDateFromToken(accessToken)));
     }
 
+    @ApiOperation(value = "JWT 토큰 갱신")
     @PostMapping("/auth/token/refresh")
     public ResponseEntity<JwtResponse> refreshToken(@RequestBody @Valid TokenRefreshRequest tokenRefreshRequest) {
         log.debug("[refreshToken] params - {}", tokenRefreshRequest);
@@ -72,13 +76,6 @@ public class AuthController {
         final String accessToken = jwtAccessTokenUtil.generateToken(user);
         final String refreshToken = jwtRefreshTokenUtil.generateToken(user);
         return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken, jwtAccessTokenUtil.getExpirationDateFromToken(accessToken)));
-    }
-
-    // TODO: Remove
-    @GetMapping("/me")
-    public ResponseEntity<?> me(@AuthenticationPrincipal User user) {
-        log.debug("userId: {}", user.getId());
-        return ResponseEntity.ok().build();
     }
 
     @Getter

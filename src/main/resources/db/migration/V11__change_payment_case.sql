@@ -1,0 +1,1 @@
+ALTER TABLE `travel_budget_db`.`payment_case` ADD COLUMN is_ready ENUM ('Y', 'N') NOT NULL DEFAULT 'N';

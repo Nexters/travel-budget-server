@@ -3,6 +3,7 @@ package com.strictmanager.travelbudget.domain.payment;
 import static java.util.Objects.requireNonNull;
 
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
+import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.user.User;
 import java.time.LocalDateTime;
@@ -39,7 +40,8 @@ public class PaymentCase extends BaseAuditingEntity {
         PaymentCaseCategory category,
         Budget budget,
         User createUser,
-        User updateUser
+        User updateUser,
+        YnFlag isReady
     ) {
         this.price = requireNonNull(price);
         this.title = requireNonNull(title);
@@ -48,6 +50,7 @@ public class PaymentCase extends BaseAuditingEntity {
         this.budget = requireNonNull(budget);
         this.createUser = requireNonNull(createUser);
         this.updateUser = requireNonNull(updateUser);
+        this.isReady = requireNonNull(isReady);
     }
 
     @Id
@@ -75,6 +78,9 @@ public class PaymentCase extends BaseAuditingEntity {
     @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "update_user_id")
     private User updateUser;
+
+    @Enumerated(EnumType.STRING)
+    private YnFlag isReady;
 
     public PaymentCase changePrice(Long price) {
         this.price = price;

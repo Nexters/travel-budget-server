@@ -1,5 +1,6 @@
 package com.strictmanager.travelbudget.application.payment;
 
+import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
@@ -22,11 +23,15 @@ public class PaymentManager {
     private final BudgetService budgetService;
     private final UserService userService;
 
-    public List<PaymentCase> getPaymentCases(Long userId, Long budgetId, LocalDate paymentDate) {
+    public List<PaymentCase> getPaymentCases(Long userId, Long budgetId, YnFlag isReady, LocalDate paymentDate) {
         final Budget budget = budgetService.getBudget(budgetId);
         if (!budget.getCreateUserId().equals(userId)) {
             throw new PaymentException();
         }
+        if (YnFlag.Y == isReady) {
+            return paymentCaseService.getPaymentCaseByReady(budget);
+        }
+
         return paymentCaseService.getPaymentCaseByDate(budget, paymentDate);
     }
 
@@ -43,6 +48,7 @@ public class PaymentManager {
                 .budget(budget)
                 .createUser(user)
                 .updateUser(user)
+                .isReady(paymentVO.getIsReady())
                 .build()
         );
 
