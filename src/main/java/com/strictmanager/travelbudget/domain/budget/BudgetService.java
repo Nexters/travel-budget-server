@@ -47,8 +47,8 @@ public class BudgetService {
     }
 
 
-    public Budget getPublicBudget(TripPlan plan) {
-        return plan.getBudget();
+    public Optional<Budget> getPublicBudget(TripPlan plan) {
+        return Optional.ofNullable(plan.getBudget());
     }
 
     public Optional<Budget> getPersonalBudget(User user, TripPlan plan) {

@@ -3,6 +3,7 @@ package com.strictmanager.travelbudget.application.member;
 import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
+import com.strictmanager.travelbudget.domain.member.MemberException;
 import com.strictmanager.travelbudget.domain.member.MemberService;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
 import com.strictmanager.travelbudget.domain.payment.PaymentCaseService;
@@ -16,7 +17,7 @@ import com.strictmanager.travelbudget.web.PlanController.PlanDetailResponse.Amou
 import com.strictmanager.travelbudget.web.PlanController.PlanResponse;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,18 @@ public class PlanManager {
 
     public List<PlanResponse> getPlans(User user, boolean isComing) {
 
+        BiFunction<User, TripPlan, Budget> budgetBiFunction = (usr, plan) ->
+            Objects.requireNonNullElseGet(plan.getBudget(),
+                () -> Objects.requireNonNullElseGet(
+                    memberService.getMember(usr, plan).getBudget(),
+                    () -> Budget.builder()
+                        .createUserId(user.getId())
+                        .amount(-1L)
+                        .paymentAmount(-1L)
+                        .build()
+                )
+            );
+
         Stream<TripPlan> planStream;
         if (isComing) {
             List<TripPlan> doingPlans = planService.getDoingPlans(user);
@@ -51,12 +64,12 @@ public class PlanManager {
             .name(plan.getName())
             .startDate(plan.getStartDate())
             .endDate(plan.getEndDate())
-            .amount(
-                Objects.requireNonNullElseGet(plan.getBudget(),
-                    () -> Budget.builder().amount(-1L).build()).getAmount())
-            .budgetId(Optional.of(plan.getBudget()).map(Budget::getId).orElse(-1L))
+            .purposeAmount(budgetBiFunction.apply(user, plan).getAmount())
+            .usedAmount(budgetBiFunction.apply(user, plan).getPaymentAmount())
+            .budgetId(budgetBiFunction.apply(user, plan).getId())
             .isPublic(plan.getIsPublic())
             .userCount(plan.getTripMembers().size())
+            .isDoing(LocalDateUtils.checkIsDoing(plan.getStartDate(), plan.getEndDate()))
             .build())
             .collect(Collectors.toList());
     }
@@ -65,15 +78,15 @@ public class PlanManager {
     public TripPlan createPlan(PlanVO vo) {
         LocalDateUtils.checkDateValidation(vo.getStartDate(), vo.getEndDate());
 
-        Optional<Long> sharedBudgetOpt = Optional.ofNullable(vo.getSharedBudget());
+        Budget budget = null;
 
-        Budget budget = sharedBudgetOpt
-            .map(amount -> budgetService.createBudget(Budget.builder()
+        if (vo.getIsPublic().equals(YnFlag.Y)) {
+            budgetService.createBudget(Budget.builder()
                 .createUserId(vo.getCreateUser().getId())
                 .paymentAmount(INIT_AMOUNT)
-                .amount(amount)
-                .build()))
-            .orElse(null);
+                .amount(vo.getSharedBudget())
+                .build());
+        }
 
         TripPlan tripPlan = planService.savePlan(TripPlan.builder()
             .name(vo.getName())
@@ -105,8 +118,8 @@ public class PlanManager {
     }
 
     public AmountItem getSharedPlanInfo(TripPlan plan) {
-        Budget budget = budgetService.getPublicBudget(plan);
-        return createPlanInfo(plan, budget);
+        return budgetService.getPublicBudget(plan).map(budget -> createPlanInfo(plan, budget))
+            .orElse(null);
     }
 
 
@@ -131,4 +144,22 @@ public class PlanManager {
             .build();
     }
 
+    public void deleteMember(MemberVO vo) {
+        TripMember requestMember = memberService.getMember(
+            vo.getUser(),
+            planService.getPlan(vo.getPlanId())
+        );
+
+        if(requestMember == null) {
+            throw new MemberException();
+        }
+
+        if (requestMember.getAuthority().equals(Authority.MEMBER) || Objects
+            .equals(vo.getMemberId(), requestMember.getId())) {
+            throw new MemberException();
+        }
+
+        TripMember deleteTargetMember = memberService.getMember(vo.getMemberId());
+        memberService.deleteMember(deleteTargetMember);
+    }
 }

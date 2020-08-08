@@ -1,5 +1,6 @@
 package com.strictmanager.travelbudget.utils;
 
+import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.plan.PlanException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,10 +24,19 @@ public class LocalDateUtils {
         return dates;
     }
 
-
     public static void checkDateValidation(LocalDate startDate, LocalDate endDate) {
         if (startDate.compareTo(endDate) > 0) {
             throw new PlanException();
+        }
+    }
+
+    public static YnFlag checkIsDoing(LocalDate startDate, LocalDate endDate) {
+        LocalDate nowDate = LocalDate.now();
+
+        if ((!nowDate.isBefore(startDate)) && (nowDate.isBefore(endDate.plusDays(1)))) {
+            return YnFlag.Y;
+        } else {
+            return YnFlag.N;
         }
     }
 

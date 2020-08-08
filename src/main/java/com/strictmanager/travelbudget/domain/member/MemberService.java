@@ -20,14 +20,17 @@ public class MemberService {
     }
 
     public TripMember getMember(User user, TripPlan plan) {
-        return tripMemberRepository.findByUserAndTripPlan(user, plan).orElseThrow(PlanException::new);
+        return tripMemberRepository.findByUserAndTripPlan(user, plan)
+            .orElseThrow(PlanException::new);
     }
 
     public TripMember getMember(Long id) {
         return tripMemberRepository.findById(id).orElseThrow(MemberException::new);
-
     }
 
+    public void deleteMember(TripMember member) {
+        tripMemberRepository.delete(member);
+    }
 
 
 }
