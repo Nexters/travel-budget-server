@@ -47,18 +47,10 @@ public class PlanService {
          return tripPlanRepository.findById(planId).orElseThrow();
     }
 
-    public TripPlan createPlan(TripPlan tripPlan) {
+    public TripPlan savePlan(TripPlan tripPlan) {
         return tripPlanRepository.save(tripPlan);
     }
 
-    public TripMember createTripMember(TripMember tripMember) {
-        return tripMemberRepository.save(tripMember);
-    }
 
-    public void checkDateValidation(LocalDate startDate, LocalDate endDate) {
-        if (startDate.compareTo(endDate) > 0) {
-            throw new PlanException();
-        }
-    }
 
 }

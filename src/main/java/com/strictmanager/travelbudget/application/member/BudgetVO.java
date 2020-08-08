@@ -7,21 +7,21 @@ import lombok.Getter;
 
 @Getter
 public class BudgetVO {
+
     private final Long userId;
-    private final Long tripPlanId;
-    private final Long tripMemberId;
+    private final Long planId;
     private final Long amount;
+    private final Long memberId;
 
     @Builder
     public BudgetVO(
         Long userId,
-        Long tripPlanId,
-        Long tripMemberId,
-        Long amount
-    ) {
-        this.userId = userId;
-        this.tripPlanId = requireNonNull(tripPlanId);
-        this.tripMemberId = requireNonNull(tripMemberId);
+        Long planId,
+        Long amount,
+        Long memberId) {
+        this.userId = requireNonNull(userId);
+        this.planId = requireNonNull(planId);
         this.amount = requireNonNull(amount);
+        this.memberId = requireNonNull(memberId);
     }
 }

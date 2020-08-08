@@ -53,6 +53,11 @@ public class TripMember extends BaseAuditingEntity {
         OWNER, MEMBER
     }
 
+    public TripMember updateBudget(Budget budget) {
+        this.budget = budget;
+        return this;
+    }
+
     @Builder
     public TripMember(Authority authority, TripPlan tripPlan, User user, Budget budget) {
         this.authority = authority;

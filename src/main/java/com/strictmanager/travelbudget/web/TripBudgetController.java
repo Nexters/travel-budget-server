@@ -6,11 +6,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.strictmanager.travelbudget.application.member.BudgetVO;
 import com.strictmanager.travelbudget.application.member.MemberBudgetManager;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import com.strictmanager.travelbudget.domain.user.User;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiOperation;
 import javax.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -18,70 +20,38 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Slf4j
 @ApiController
 @RequiredArgsConstructor
-public class BudgetController {
+public class TripBudgetController {
 
     private final MemberBudgetManager memberBudgetManager;
     private final BudgetService budgetService;
 
-    @PostMapping("/budgets")
-    public ResponseEntity<BudgetResponse> createBudget(
-        @AuthenticationPrincipal User user,
-        @RequestBody @Valid BudgetCreateRequest request
-    ) {
-        final Long budgetId = memberBudgetManager.createMemberBudget(
-            BudgetVO.builder()
-                .userId(user.getId())
-                .tripPlanId(request.getTripPlanId())
-                .tripMemberId(request.getTripMemberId())
-                .amount(request.getAmount())
-                .build()
-        );
-
-        return ResponseEntity.ok(new BudgetResponse(budgetId));
-    }
 
     @PutMapping("/budgets/{id}")
+    @ApiOperation(value = "목표 예산 변경")
     public ResponseEntity<BudgetResponse> updateBudget(
         @AuthenticationPrincipal User user,
-        @PathVariable @Valid Long id,
+        @PathVariable(name = "id") Long budgetId,
         @RequestBody @Valid BudgetUpdateRequest request
     ) {
-        final Budget budget = budgetService.updateBudgetAmount(user.getId(), id, request.getAmount());
+
+        final Budget budget = budgetService
+            .updateBudgetAmount(user.getId(), budgetId, request.getAmount());
 
         return ResponseEntity.ok(new BudgetResponse(budget.getId()));
     }
 
     @Getter
-    @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-    private static class BudgetCreateRequest {
-
-        private final Long tripPlanId;
-        private final Long tripMemberId;
-        private final Long amount;
-
-        @JsonCreator
-        private BudgetCreateRequest(
-            @JsonProperty(value = "trip_plan_id", required = true) Long tripPlanId,
-            @JsonProperty(value = "trip_member_id", required = true) Long tripMemberId,
-            @JsonProperty(value = "amount", required = true) Long amount
-        ) {
-            this.tripPlanId = tripPlanId;
-            this.tripMemberId = tripMemberId;
-            this.amount = amount;
-        }
-    }
-
-    @Getter
+    @ApiModel
     @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
     private static class BudgetUpdateRequest {
 
+        @ApiModelProperty(name = "목표 예산")
         private final Long amount;
 
         @JsonCreator

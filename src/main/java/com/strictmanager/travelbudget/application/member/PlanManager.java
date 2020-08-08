@@ -2,18 +2,17 @@ package com.strictmanager.travelbudget.application.member;
 
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
+import com.strictmanager.travelbudget.domain.member.MemberService;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
 import com.strictmanager.travelbudget.domain.payment.PaymentCaseService;
 import com.strictmanager.travelbudget.domain.plan.PlanService;
 import com.strictmanager.travelbudget.domain.plan.TripMember;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
-import com.strictmanager.travelbudget.domain.plan.TripPlan.YnFlag;
 import com.strictmanager.travelbudget.domain.user.User;
-import com.strictmanager.travelbudget.web.PlanController.PlanDetailResponse;
+import com.strictmanager.travelbudget.utils.LocalDateUtils;
+import com.strictmanager.travelbudget.web.PlanController.PlanDetailResponse.AmountItem;
 import com.strictmanager.travelbudget.web.PlanController.PlanResponse;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PlanManager {
 
     private final PlanService planService;
+    private final MemberService memberService;
     private final BudgetService budgetService;
     private final PaymentCaseService paymentCaseService;
 
@@ -46,25 +46,23 @@ public class PlanManager {
         }
 
         return planStream.map(plan -> PlanResponse.builder()
-            .id(plan.getId())
+            .planId(plan.getId())
             .name(plan.getName())
             .startDate(plan.getStartDate())
             .endDate(plan.getEndDate())
             .amount(
                 Objects.requireNonNullElseGet(plan.getBudget(),
-                    () -> Budget.builder().amount(-1L).build())
-                    .getAmount())
+                    () -> Budget.builder().amount(-1L).build()).getAmount())
+            .budgetId(Optional.of(plan.getBudget()).map(Budget::getId).orElse(-1L))
             .isPublic(plan.getIsPublic())
-            .userCount(
-                plan.getTripMembers().size())
+            .userCount(plan.getTripMembers().size())
             .build())
             .collect(Collectors.toList());
-
     }
 
     @Transactional
-    public void createPlan(PlanVO vo) {
-        planService.checkDateValidation(vo.getStartDate(), vo.getEndDate());
+    public TripPlan createPlan(PlanVO vo) {
+        LocalDateUtils.checkDateValidation(vo.getStartDate(), vo.getEndDate());
 
         Optional<Long> sharedBudgetOpt = Optional.ofNullable(vo.getSharedBudget());
 
@@ -76,7 +74,7 @@ public class PlanManager {
                 .build()))
             .orElse(null);
 
-        TripPlan tripPlan = planService.createPlan(TripPlan.builder()
+        TripPlan tripPlan = planService.savePlan(TripPlan.builder()
             .name(vo.getName())
             .startDate(vo.getStartDate())
             .endDate(vo.getEndDate())
@@ -84,50 +82,52 @@ public class PlanManager {
             .userId(vo.getCreateUser().getId())
             .build());
 
-        planService.createTripMember(TripMember.builder()
+        memberService.saveMember(TripMember.builder()
             .authority(Authority.OWNER)
             .tripPlan(tripPlan)
-            .budget(budget)
             .user(vo.getCreateUser())
             .build());
 
-
+        return tripPlan;
     }
 
-    public PlanDetailResponse getPlanDetail(User user, Long planId) {
-        Budget budget;
-        TripPlan plan = planService.getPlan(planId);
+    public TripPlan getPlan(Long planId) {
+        return planService.getPlan(planId);
+    }
 
-        if (plan.getIsPublic().equals(YnFlag.Y)) {
-            budget = budgetService.getPublicBudget(plan);
-        } else {
-            budget = budgetService.getPersonalBudget(user, plan);
-        }
+    public List<TripMember> getMembers(Long planId) {
+        return planService.getPlan(planId).getTripMembers();
+    }
 
-        long readyUsedPrice = paymentCaseService.getPaymentCaseByReady(budget)
+    public Long getMemberId(User user, TripPlan plan) {
+        return memberService.getMember(user, plan).getId();
+    }
+
+    public AmountItem getSharedPlanInfo(TripPlan plan) {
+        Budget budget = budgetService.getPublicBudget(plan);
+        return createPlanInfo(plan, budget);
+    }
+
+
+    public AmountItem getPersonalPlanInfo(User user, TripPlan plan) {
+        return budgetService.getPersonalBudget(user, plan)
+            .map(budget -> createPlanInfo(plan, budget))
+            .orElse(null);
+    }
+
+    private AmountItem createPlanInfo(TripPlan plan, Budget budget) {
+        long readyUsePrice = paymentCaseService.getPaymentCaseByReady(budget)
             .stream()
-            .mapToLong(PaymentCase::getPrice)
-            .sum();
-
+            .mapToLong(PaymentCase::getPrice).sum();
         int planDayCnt = plan.getStartDate().until(plan.getEndDate()).getDays() + 1;
 
-        return PlanDetailResponse.builder()
+        return AmountItem.builder()
             .purposeAmount(budget.getAmount())
+            .paymentAmount(budget.getPaymentAmount())
             .suggestAmount(
-                (double) ((budget.getAmount() - readyUsedPrice) / planDayCnt))
-            .totalUseAmount(paymentCaseService.getPaymentUseAmount(budget))
-            .dates(getTripDates(plan.getStartDate(), planDayCnt))
+                (double) ((budget.getAmount() - readyUsePrice) / planDayCnt))
+            .budgetId(budget.getId())
             .build();
     }
 
-    private List<LocalDate> getTripDates(LocalDate startDate, int planDaysCnt) {
-        List<LocalDate> tripDates = new ArrayList<>();
-        LocalDate targetDate = startDate;
-
-        for (int i = 1; i < planDaysCnt; i++) {
-            tripDates.add(targetDate);
-            targetDate = targetDate.plusDays(1);
-        }
-        return tripDates;
-    }
 }
