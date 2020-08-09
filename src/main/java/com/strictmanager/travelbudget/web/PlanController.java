@@ -2,9 +2,12 @@ package com.strictmanager.travelbudget.web;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.strictmanager.travelbudget.application.member.MemberBudgetManager;
+import com.strictmanager.travelbudget.application.member.MemberVO;
 import com.strictmanager.travelbudget.application.member.PlanManager;
 import com.strictmanager.travelbudget.application.member.PlanVO;
 import com.strictmanager.travelbudget.domain.YnFlag;
@@ -15,13 +18,11 @@ import com.strictmanager.travelbudget.utils.LocalDateUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import java.net.URI;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -33,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,7 +55,7 @@ public class PlanController {
     @Transactional(readOnly = true)
     public ResponseEntity<List<PlanResponse>> getPlans(
         @AuthenticationPrincipal User user,
-        @RequestParam(name = "isComing") boolean isComing) {
+        @ApiParam(value = "진행중 여행 여부", example = "true", required = true) @RequestParam(name = "isComing") boolean isComing) {
         List<PlanResponse> responses = planManager.getPlans(user, isComing);
 
         return ResponseEntity.ok(responses);
@@ -71,6 +73,7 @@ public class PlanController {
             .startDate(param.getStartDate())
             .endDate(param.getEndDate())
             .sharedBudget(param.getSharedBudget())
+            .isPublic(param.getIsPublic())
             .build());
 
         return ResponseEntity
@@ -115,6 +118,21 @@ public class PlanController {
     }
 
 
+    @DeleteMapping("/plans/{planId}/members/{memberId}")
+    @ApiOperation(value = "멤버 삭제")
+    public ResponseEntity deleteMember(
+        @AuthenticationPrincipal User user,
+        @ApiParam(value = "여행 id", required = true) @PathVariable(name = "planId") Long planId,
+        @ApiParam(value = "삭제 할 멤버 id", required = true) @PathVariable(name = "memberId") Long memberId) {
+
+        planManager.deleteMember(MemberVO.builder()
+            .user(user)
+            .planId(planId)
+            .memberId(memberId)
+            .build());
+
+        return ResponseEntity.noContent().build();
+    }
 
 
     @Getter
@@ -148,7 +166,9 @@ public class PlanController {
         @ApiModelProperty(value = "여행 멤버 id")
         private final Long memberId;
 
+        @JsonInclude(Include.NON_NULL)
         private final AmountItem shared;
+
         private final AmountItem personal;
 
         @ApiModelProperty(value = "여행 일자 목록 yyyy-MM-dd")
@@ -175,6 +195,9 @@ public class PlanController {
             private final Double suggestAmount;
             @ApiModelProperty(value = "사용된 예산")
             private final Long paymentAmount;
+            @ApiModelProperty(value = "사용 가능한 예산")
+            private final Long remainAmount;
+
 
             @ApiModelProperty(value = "예산 id")
             private final Long budgetId;
@@ -187,6 +210,7 @@ public class PlanController {
                 this.suggestAmount = suggestAmount;
                 this.paymentAmount = paymentAmount;
                 this.budgetId = budgetId;
+                this.remainAmount = purposeAmount - paymentAmount;
             }
         }
     }
@@ -201,16 +225,32 @@ public class PlanController {
         private final Long budgetId;
         @ApiModelProperty(value = "여행명")
         private final String name;
-        @ApiModelProperty(value = "여행기간")
-        private final String planPeriod;
+
+        @ApiModelProperty(value = "시작 일자")
+        private final LocalDate startDate;
+
+        @ApiModelProperty(value = "종료 일자")
+        private final LocalDate endDate;
+
         @ApiModelProperty(value = "D-DAY")
         private final String dayCount;
         @ApiModelProperty(value = "목표 예산 (개인 여행 및 목표금액 미설정시 -1)")
-        private final Long amount; // 금액 미입력시 -1
+        private final Long purposeAmount; // 금액 미입력시 -1
+
+        @ApiModelProperty(value = "사용된 예산")
+        private final Long usedAmount;
+
         @ApiModelProperty(value = "여행 참가인원 수")
         private final int userCount;
         @ApiModelProperty(value = "여행 공용 여부 Y, N")
         private final YnFlag isPublic;
+
+
+        @ApiModelProperty(value = "여행중인 여부")
+        private final YnFlag isDoing;
+
+        @ApiModelProperty(value = "방 초대 해시코드")
+        private final String inviteCode; // TODO: 해시코드 작업 완료시 추가 필요 2020-08-08 (kiyeon_kim1)
 
         @Builder
         public PlanResponse(
@@ -219,18 +259,24 @@ public class PlanController {
             String name,
             LocalDate startDate,
             LocalDate endDate,
-            Long amount,
+            Long purposeAmount,
+            Long usedAmount,
             int userCount,
-            YnFlag isPublic
-        ) {
+            YnFlag isPublic,
+            YnFlag isDoing,
+            String inviteCode) {
             this.planId = planId;
             this.budgetId = budgetId;
             this.name = name;
-            this.planPeriod = convertPlanPeriod(startDate, endDate);
+            this.startDate = startDate;
+            this.endDate = endDate;
             this.dayCount = calculateDay(startDate);
-            this.amount = amount;
+            this.purposeAmount = purposeAmount;
+            this.usedAmount = usedAmount;
             this.userCount = userCount;
             this.isPublic = isPublic;
+            this.isDoing = isDoing;
+            this.inviteCode = inviteCode;
         }
 
         private String calculateDay(LocalDate startDate) {
@@ -250,50 +296,40 @@ public class PlanController {
             return dDayBuilder.toString();
         }
 
-
-        private String convertPlanPeriod(LocalDate startDate, LocalDate endDate) {
-            StringBuilder planPeriodBuilder = new StringBuilder();
-            Function<LocalDate, String> dtConverter = date ->
-                Objects.requireNonNull(date)
-                    .format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))
-                    .substring(5);
-
-            planPeriodBuilder.append(startDate.getYear())
-                .append(".")
-                .append(dtConverter.apply(startDate))
-                .append(" - ");
-
-            if (startDate.getYear() != endDate.getYear()) {
-                planPeriodBuilder.append(endDate.getYear()).append(".");
-            }
-
-            return planPeriodBuilder.append(dtConverter.apply(endDate)).toString();
-        }
     }
 
 
     @Getter
     @ToString
     @VisibleForTesting
+    @ApiModel
     private static class CreatePlanRequest {
 
+        @ApiModelProperty(value = "여행 명", example = "제주도 힐링여행 #1")
         private final String name;
+        @ApiModelProperty(value = "시작일", example = "2020-08-11")
         private final LocalDate startDate;
+        @ApiModelProperty(value = "종료일", example = "2020-08-21")
         private final LocalDate endDate;
 
+        @ApiModelProperty(value = "공용 예산", example = "100000")
         private final Long sharedBudget;
+
+        @ApiModelProperty(value = "여행 공용 여부", example = "Y")
+        private final YnFlag isPublic;
 
         @JsonCreator
         public CreatePlanRequest(
             @JsonProperty(value = "name", defaultValue = "여행을 떠나요") String name,
             @JsonProperty(value = "start_date", required = true) LocalDate startDate,
             @JsonProperty(value = "end_date", required = true) LocalDate endDate,
-            @JsonProperty(value = "shared_budget", required = false) Long sharedBudget
-        ) {
+            @JsonProperty(value = "shared_budget", required = false) Long sharedBudget,
+            @JsonProperty(value = "is_public", required = true, defaultValue = "Y") YnFlag isPublic) {
             this.name = name;
             this.startDate = startDate;
             this.endDate = endDate;
             this.sharedBudget = sharedBudget;
+            this.isPublic = isPublic;
         }
     }
 
