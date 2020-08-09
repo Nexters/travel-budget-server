@@ -59,24 +59,17 @@ public class TripPlan extends BaseAuditingEntity {
     private List<TripMember> tripMembers = new ArrayList<>();
 
     @Builder
-    public TripPlan(String name, LocalDate startDate, LocalDate endDate, Long userId, Budget budget) {
+    public TripPlan(String name, LocalDate startDate, LocalDate endDate, Long userId, Budget budget, YnFlag isPublic) {
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
         this.createUserId = userId;
         this.updateUserId = userId;
+        this.isPublic = isPublic;
 
-        setCaseIsPublic(budget);
-
-    }
-
-    private void setCaseIsPublic(Budget budget) {
-        if(budget != null) {
-            this.isPublic = YnFlag.Y;
+        if(isPublic.equals(YnFlag.Y)) {
             this.budget = Objects.requireNonNull(budget);
-        } else {
-            this.budget = null;
-            this.isPublic = YnFlag.N;
         }
     }
+
 }

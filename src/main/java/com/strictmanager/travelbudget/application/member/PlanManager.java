@@ -17,6 +17,7 @@ import com.strictmanager.travelbudget.web.PlanController.PlanDetailResponse.Amou
 import com.strictmanager.travelbudget.web.PlanController.PlanResponse;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -49,7 +50,6 @@ public class PlanManager {
                 )
             );
 
-
         Stream<TripPlan> planStream;
         if (isComing) {
             List<TripPlan> doingPlans = planService.getDoingPlans(user);
@@ -67,7 +67,10 @@ public class PlanManager {
             .endDate(plan.getEndDate())
             .purposeAmount(budgetFindFunction.apply(plan).getAmount())
             .usedAmount(budgetFindFunction.apply(plan).getPaymentAmount())
-            .budgetId(budgetFindFunction.apply(plan).getId())
+            .budgetId(Optional.ofNullable(
+                budgetFindFunction.apply(plan).getId())
+                .orElse(-1L)
+            )
             .isPublic(plan.getIsPublic())
             .userCount(plan.getTripMembers().size())
             .isDoing(LocalDateUtils.checkIsDoing(plan.getStartDate(), plan.getEndDate()))
@@ -82,7 +85,7 @@ public class PlanManager {
         Budget budget = null;
 
         if (vo.getIsPublic().equals(YnFlag.Y)) {
-            budgetService.createBudget(Budget.builder()
+            budget = budgetService.createBudget(Budget.builder()
                 .createUserId(vo.getCreateUser().getId())
                 .paymentAmount(INIT_AMOUNT)
                 .amount(vo.getSharedBudget())
@@ -95,6 +98,7 @@ public class PlanManager {
             .endDate(vo.getEndDate())
             .budget(budget)
             .userId(vo.getCreateUser().getId())
+            .isPublic(vo.getIsPublic())
             .build());
 
         memberService.saveMember(TripMember.builder()
@@ -151,7 +155,7 @@ public class PlanManager {
             planService.getPlan(vo.getPlanId())
         );
 
-        if(requestMember == null) {
+        if (requestMember == null) {
             throw new MemberException();
         }
 
