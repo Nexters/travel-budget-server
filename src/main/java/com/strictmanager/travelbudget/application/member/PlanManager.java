@@ -12,6 +12,7 @@ import com.strictmanager.travelbudget.domain.plan.TripMember;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.user.User;
+import com.strictmanager.travelbudget.utils.InviteCodeUtils;
 import com.strictmanager.travelbudget.utils.LocalDateUtils;
 import com.strictmanager.travelbudget.web.PlanController.PlanDetailResponse.AmountItem;
 import com.strictmanager.travelbudget.web.PlanController.PlanResponse;
@@ -28,13 +29,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class PlanManager {
+    private static final long INIT_AMOUNT = 0L;
 
     private final PlanService planService;
     private final MemberService memberService;
     private final BudgetService budgetService;
     private final PaymentCaseService paymentCaseService;
-
-    private final long INIT_AMOUNT = 0L;
 
     public List<PlanResponse> getPlans(User user, boolean isComing) {
 
@@ -74,6 +74,7 @@ public class PlanManager {
             .isPublic(plan.getIsPublic())
             .userCount(plan.getTripMembers().size())
             .isDoing(LocalDateUtils.checkIsDoing(plan.getStartDate(), plan.getEndDate()))
+            .inviteCode(InviteCodeUtils.generatePlanInviteCode(plan.getId(), plan.getCreateUserId()))
             .build())
             .collect(Collectors.toList());
     }

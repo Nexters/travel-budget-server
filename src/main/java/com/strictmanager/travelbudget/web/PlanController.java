@@ -248,7 +248,7 @@ public class PlanController {
         private final YnFlag isDoing;
 
         @ApiModelProperty(value = "방 초대 해시코드")
-        private final String inviteCode; // TODO: 해시코드 작업 완료시 추가 필요 2020-08-08 (kiyeon_kim1)
+        private final String inviteCode;
 
         @Builder
         public PlanResponse(
