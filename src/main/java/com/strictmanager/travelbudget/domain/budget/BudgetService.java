@@ -24,17 +24,8 @@ public class BudgetService {
         return budgetRepository.findById(budgetId).orElseThrow(BudgetException::new);
     }
 
-    public Budget createBudget(Budget budget) {
+    public Budget saveBudget(Budget budget) {
         return budgetRepository.save(budget);
-    }
-
-    public Budget updateBudgetAmount(Long userId, Long budgetId, Long amount) {
-        final Budget budget = budgetRepository.findById(budgetId).orElseThrow(BudgetException::new);
-        if (!budget.getCreateUserId().equals(userId)) {
-            throw new BudgetException();
-        }
-
-        return budgetRepository.save(budget.changeAmount(amount));
     }
 
     public Budget updateBudgetPaymentAmount(Long userId, Long budgetId, Long paymentAmount) {
@@ -55,5 +46,4 @@ public class BudgetService {
         return tripMemberRepository.findByUserAndTripPlan(user, plan)
             .map(TripMember::getBudget);
     }
-
 }

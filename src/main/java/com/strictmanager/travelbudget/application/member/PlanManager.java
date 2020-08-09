@@ -85,7 +85,7 @@ public class PlanManager {
         Budget budget = null;
 
         if (vo.getIsPublic().equals(YnFlag.Y)) {
-            budget = budgetService.createBudget(Budget.builder()
+            budget = budgetService.saveBudget(Budget.builder()
                 .createUserId(vo.getCreateUser().getId())
                 .paymentAmount(INIT_AMOUNT)
                 .amount(vo.getSharedBudget())

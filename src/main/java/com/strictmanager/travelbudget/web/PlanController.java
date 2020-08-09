@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
-import com.strictmanager.travelbudget.application.member.MemberBudgetManager;
 import com.strictmanager.travelbudget.application.member.MemberVO;
 import com.strictmanager.travelbudget.application.member.PlanManager;
 import com.strictmanager.travelbudget.application.member.PlanVO;
@@ -48,7 +47,6 @@ public class PlanController {
 
 
     private final PlanManager planManager;
-    private final MemberBudgetManager memberBudgetManager;
 
     @GetMapping("/plans")
     @ApiOperation(value = "여행 목록 조회")
