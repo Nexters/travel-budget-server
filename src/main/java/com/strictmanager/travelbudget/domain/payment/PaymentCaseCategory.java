@@ -8,6 +8,4 @@ public enum PaymentCaseCategory {
     SHOPPING,
     CULTURE,
     ETC
-
-
 }

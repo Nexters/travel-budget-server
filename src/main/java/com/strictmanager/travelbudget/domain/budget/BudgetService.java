@@ -46,14 +46,4 @@ public class BudgetService {
         return tripMemberRepository.findByUserAndTripPlan(user, plan)
             .map(TripMember::getBudget);
     }
-
-    public void getStatics(User user, Long budgetId) {
-
-
-
-        // 총 예산
-        // 지출 금액
-        // category group by
-
-    }
 }
