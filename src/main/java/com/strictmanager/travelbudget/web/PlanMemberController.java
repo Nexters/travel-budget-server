@@ -4,9 +4,12 @@ import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.strictmanager.travelbudget.application.member.BudgetVO;
 import com.strictmanager.travelbudget.application.member.BudgetManager;
+import com.strictmanager.travelbudget.application.member.BudgetVO;
+import com.strictmanager.travelbudget.application.member.PlanManager;
+import com.strictmanager.travelbudget.domain.member.MemberException;
 import com.strictmanager.travelbudget.domain.user.User;
+import com.strictmanager.travelbudget.utils.InviteCodeUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
@@ -25,7 +28,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class PlanMemberController {
 
+
+    private final PlanManager planManager;
     private final BudgetManager budgetManager;
+
+    @PostMapping("/members")
+    @ApiOperation(value = "여행계획 멤버 추가")
+    public ResponseEntity<Object> createPlanMember(
+        @AuthenticationPrincipal User user,
+        @RequestBody @Valid MemberCreateRequest request) {
+
+        Long planId = InviteCodeUtils
+            .getPlanIdFromInviteCode(request.getInviteCode())
+            .orElseThrow(() -> new MemberException("This code is invalid"));
+
+        Long memberId = planManager.createPlanMember(user, planId);
+
+        return ResponseEntity.ok(new MemberResponse(memberId));
+    }
 
     @PostMapping("/members/{id}/budgets")
     @ApiOperation(value = "개인 목표 예산 설정")
@@ -43,6 +63,30 @@ public class PlanMemberController {
         );
 
         return ResponseEntity.ok(new BudgetResponse(budgetId));
+    }
+
+    @Getter
+    @ApiModel
+    private static class MemberCreateRequest {
+
+        @ApiModelProperty(name = "방 초대 해시코드")
+        private final String inviteCode;
+
+        @JsonCreator
+        private MemberCreateRequest(
+            @JsonProperty(value = "invite_code", required = true) String inviteCode) {
+            this.inviteCode = inviteCode;
+        }
+    }
+
+    @Getter
+    private static class MemberResponse {
+
+        private final Long memberId;
+
+        private MemberResponse(Long memberId) {
+            this.memberId = requireNonNull(memberId);
+        }
     }
 
     @Getter

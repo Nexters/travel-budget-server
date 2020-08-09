@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class PlanManager {
+
     private static final long INIT_AMOUNT = 0L;
 
     private final PlanService planService;
@@ -74,7 +75,8 @@ public class PlanManager {
             .isPublic(plan.getIsPublic())
             .userCount(plan.getTripMembers().size())
             .isDoing(LocalDateUtils.checkIsDoing(plan.getStartDate(), plan.getEndDate()))
-            .inviteCode(InviteCodeUtils.generatePlanInviteCode(plan.getId(), plan.getCreateUserId()))
+            .inviteCode(
+                InviteCodeUtils.generatePlanInviteCode(plan.getId(), plan.getCreateUserId()))
             .build())
             .collect(Collectors.toList());
     }
@@ -157,15 +159,27 @@ public class PlanManager {
         );
 
         if (requestMember == null) {
-            throw new MemberException();
+            throw new MemberException("Can not find Member");
         }
 
         if (requestMember.getAuthority().equals(Authority.MEMBER) || Objects
             .equals(vo.getMemberId(), requestMember.getId())) {
-            throw new MemberException();
+            throw new MemberException("Member Authority Exception");
         }
 
         TripMember deleteTargetMember = memberService.getMember(vo.getMemberId());
         memberService.deleteMember(deleteTargetMember);
+    }
+
+    public Long createPlanMember(User user, Long planId) {
+        TripPlan plan = planService.getPlan(planId);
+
+        final TripMember member = memberService.saveMember(TripMember.builder()
+            .authority(Authority.MEMBER)
+            .tripPlan(plan)
+            .user(user)
+            .build());
+
+        return member.getId();
     }
 }
