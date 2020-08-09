@@ -25,7 +25,7 @@ public class MemberService {
     }
 
     public TripMember getMember(Long id) {
-        return tripMemberRepository.findById(id).orElseThrow(MemberException::new);
+        return tripMemberRepository.findById(id).orElseThrow(() -> new MemberException("Can not find Member"));
     }
 
     public void deleteMember(TripMember member) {

@@ -98,6 +98,7 @@ public class PlanController {
             .build());
     }
 
+
     @GetMapping("/plans/{id}/members")
     @ApiOperation(value = "여행 친구목록 조회")
     @Transactional(readOnly = true)
