@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.strictmanager.travelbudget.application.member.BudgetVO;
-import com.strictmanager.travelbudget.application.member.MemberBudgetManager;
+import com.strictmanager.travelbudget.application.member.BudgetManager;
 import com.strictmanager.travelbudget.domain.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,19 +25,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class PlanMemberController {
 
-    private final MemberBudgetManager memberBudgetManager;
+    private final BudgetManager budgetManager;
 
     @PostMapping("/members/{id}/budgets")
     @ApiOperation(value = "개인 목표 예산 설정")
     public ResponseEntity<BudgetResponse> createBudget(
         @AuthenticationPrincipal User user,
         @RequestBody @Valid BudgetCreateRequest request,
-        @PathVariable(name = "id") Long planId) {
+        @PathVariable(name = "id") Long memberId) {
 
-        final Long budgetId = memberBudgetManager.createMemberBudget(
+        final Long budgetId = budgetManager.createMemberBudget(
             BudgetVO.builder()
                 .userId(user.getId())
-                .planId(planId)
+                .memberId(memberId)
                 .amount(request.getAmount())
                 .build()
         );

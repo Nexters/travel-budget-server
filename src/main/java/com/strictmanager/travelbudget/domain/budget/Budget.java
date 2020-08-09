@@ -3,10 +3,14 @@ package com.strictmanager.travelbudget.domain.budget;
 import static java.util.Objects.requireNonNull;
 
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
+import com.strictmanager.travelbudget.domain.payment.PaymentCase;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -41,6 +45,9 @@ public class Budget extends BaseAuditingEntity {
     private Long amount;
 
     private Long paymentAmount;
+
+    @OneToMany(mappedBy = "budget")
+    private List<PaymentCase> paymentCases = new ArrayList<>();
 
     public Budget changeAmount(Long amount) {
         this.amount = amount;
