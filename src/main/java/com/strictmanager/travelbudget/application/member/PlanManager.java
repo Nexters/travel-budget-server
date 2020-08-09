@@ -17,7 +17,7 @@ import com.strictmanager.travelbudget.web.PlanController.PlanDetailResponse.Amou
 import com.strictmanager.travelbudget.web.PlanController.PlanResponse;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -37,10 +37,10 @@ public class PlanManager {
 
     public List<PlanResponse> getPlans(User user, boolean isComing) {
 
-        BiFunction<User, TripPlan, Budget> budgetBiFunction = (usr, plan) ->
+        Function<TripPlan, Budget> budgetFindFunction = (plan) ->
             Objects.requireNonNullElseGet(plan.getBudget(),
                 () -> Objects.requireNonNullElseGet(
-                    memberService.getMember(usr, plan).getBudget(),
+                    memberService.getMember(user, plan).getBudget(),
                     () -> Budget.builder()
                         .createUserId(user.getId())
                         .amount(-1L)
@@ -48,6 +48,7 @@ public class PlanManager {
                         .build()
                 )
             );
+
 
         Stream<TripPlan> planStream;
         if (isComing) {
@@ -64,9 +65,9 @@ public class PlanManager {
             .name(plan.getName())
             .startDate(plan.getStartDate())
             .endDate(plan.getEndDate())
-            .purposeAmount(budgetBiFunction.apply(user, plan).getAmount())
-            .usedAmount(budgetBiFunction.apply(user, plan).getPaymentAmount())
-            .budgetId(budgetBiFunction.apply(user, plan).getId())
+            .purposeAmount(budgetFindFunction.apply(plan).getAmount())
+            .usedAmount(budgetFindFunction.apply(plan).getPaymentAmount())
+            .budgetId(budgetFindFunction.apply(plan).getId())
             .isPublic(plan.getIsPublic())
             .userCount(plan.getTripMembers().size())
             .isDoing(LocalDateUtils.checkIsDoing(plan.getStartDate(), plan.getEndDate()))

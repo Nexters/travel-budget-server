@@ -260,9 +260,11 @@ public class PlanController {
             LocalDate startDate,
             LocalDate endDate,
             Long purposeAmount,
-            Long usedAmount, int userCount,
+            Long usedAmount,
+            int userCount,
             YnFlag isPublic,
-            YnFlag isDoing, String inviteCode) {
+            YnFlag isDoing,
+            String inviteCode) {
             this.planId = planId;
             this.budgetId = budgetId;
             this.name = name;
