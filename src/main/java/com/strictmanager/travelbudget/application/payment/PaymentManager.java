@@ -6,10 +6,10 @@ import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
 import com.strictmanager.travelbudget.domain.payment.PaymentCaseService;
 import com.strictmanager.travelbudget.domain.payment.PaymentException;
+import com.strictmanager.travelbudget.domain.payment.PaymentException.PaymentMessage;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.domain.user.UserService;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class PaymentManager {
     public List<PaymentCase> getPaymentCases(Long userId, Long budgetId, YnFlag isReady, LocalDate paymentDate) {
         final Budget budget = budgetService.getBudget(budgetId);
         if (!budget.getCreateUserId().equals(userId)) {
-            throw new PaymentException();
+            throw new PaymentException(PaymentMessage.EDIT_ONLY_MINE);
         }
         if (YnFlag.Y == isReady) {
             return paymentCaseService.getPaymentCaseByReady(budget);

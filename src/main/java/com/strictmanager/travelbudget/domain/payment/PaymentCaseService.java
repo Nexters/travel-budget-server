@@ -2,6 +2,7 @@ package com.strictmanager.travelbudget.domain.payment;
 
 import com.strictmanager.travelbudget.application.payment.PaymentVO;
 import com.strictmanager.travelbudget.domain.YnFlag;
+import com.strictmanager.travelbudget.domain.payment.PaymentException.PaymentMessage;
 import java.time.LocalTime;
 import org.springframework.stereotype.Service;
 import com.strictmanager.travelbudget.domain.budget.Budget;
@@ -17,7 +18,8 @@ public class PaymentCaseService {
     private final PaymentCaseRepository paymentCaseRepository;
 
     public PaymentCase getPaymentCase(Long paymentId) {
-        return paymentCaseRepository.findById(paymentId).orElseThrow(PaymentException::new);
+        return paymentCaseRepository.findById(paymentId).orElseThrow(() -> new PaymentException(
+            PaymentMessage.CAN_NOT_FIND_PAYMENT));
     }
 
     public PaymentCase createPaymentCase(PaymentCase paymentCase) {
@@ -26,9 +28,9 @@ public class PaymentCaseService {
 
     public PaymentCase updatePaymentCase(Long userId, Long paymentId, PaymentVO paymentVO) {
         final PaymentCase paymentCase = paymentCaseRepository.findById(paymentId)
-            .orElseThrow(PaymentException::new);
+            .orElseThrow(() -> new PaymentException(PaymentMessage.CAN_NOT_FIND_PAYMENT));
         if (!paymentCase.getCreateUser().getId().equals(userId)) {
-            throw new PaymentException();
+            throw new PaymentException(PaymentMessage.EDIT_ONLY_MINE);
         }
 
         return paymentCaseRepository.save(
@@ -47,12 +49,5 @@ public class PaymentCaseService {
 
     public List<PaymentCase> getPaymentCaseByReady(Budget budget) {
         return paymentCaseRepository.findByBudgetAndIsReadyOrderByPaymentDtDesc(budget, YnFlag.Y);
-    }
-
-    public long getPaymentUseAmount(Budget budget) {
-        return paymentCaseRepository.findByBudget(budget)
-            .stream()
-            .mapToLong(PaymentCase::getPrice)
-            .sum();
     }
 }

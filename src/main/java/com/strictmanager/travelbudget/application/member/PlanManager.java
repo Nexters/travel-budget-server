@@ -4,6 +4,7 @@ import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import com.strictmanager.travelbudget.domain.member.MemberException;
+import com.strictmanager.travelbudget.domain.member.MemberException.MemberMessage;
 import com.strictmanager.travelbudget.domain.member.MemberService;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
 import com.strictmanager.travelbudget.domain.payment.PaymentCaseService;
@@ -132,7 +133,8 @@ public class PlanManager {
 
 
     public AmountItem getPersonalPlanInfo(User user, TripPlan plan) {
-        return budgetService.getPersonalBudget(user, plan)
+        return
+            budgetService.getPersonalBudget(user, plan)
             .map(budget -> createPlanInfo(plan, budget))
             .orElse(null);
     }
@@ -159,20 +161,35 @@ public class PlanManager {
         );
 
         if (requestMember == null) {
-            throw new MemberException("Can not find Member");
+            throw new MemberException(MemberMessage.CAN_NOT_FIND_MEMBER);
         }
 
         if (requestMember.getAuthority().equals(Authority.MEMBER) || Objects
             .equals(vo.getMemberId(), requestMember.getId())) {
-            throw new MemberException("Member Authority Exception");
+            throw new MemberException(MemberMessage.NOT_HAVE_PERMISSION);
         }
 
         TripMember deleteTargetMember = memberService.getMember(vo.getMemberId());
         memberService.deleteMember(deleteTargetMember);
     }
 
-    public Long createPlanMember(User user, Long planId) {
+    @Transactional
+    public Long createPlanMember(User user, String inviteCode) {
+
+        Long planId = InviteCodeUtils
+            .getPlanIdFromInviteCode(inviteCode)
+            .orElseThrow(() -> new MemberException(MemberMessage.INVITE_CODE_INVALID));
+
         TripPlan plan = planService.getPlan(planId);
+
+        plan.getTripMembers().stream()
+            .map(TripMember::getUser)
+            .map(User::getId)
+            .forEach(userId -> {
+                if (userId.equals(user.getId())) {
+                    throw new MemberException(MemberMessage.IS_JOINED_MEMBER);
+                }
+            });
 
         final TripMember member = memberService.saveMember(TripMember.builder()
             .authority(Authority.MEMBER)
