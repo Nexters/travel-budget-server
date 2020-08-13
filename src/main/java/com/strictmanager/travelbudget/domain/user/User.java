@@ -26,7 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Entity
 @Table(name = "user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "id", callSuper = false)
 @EntityListeners({AuditingEntityListener.class})
 @Getter
 public class User extends BaseAuditingEntity implements UserDetails {

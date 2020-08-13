@@ -5,5 +5,20 @@ import lombok.Getter;
 @Getter
 public class BudgetException extends RuntimeException {
 
-    private final String message = "Budget error";
+    public BudgetException(BudgetMessage budgetMessage) {
+        super(budgetMessage.getMsg());
+    }
+
+    @Getter
+    public enum BudgetMessage {
+        EDIT_ONLY_MINE("본인의 예산만 수정이 가능해요"),
+        CAN_NOT_FIND_BUDGET("예산 정보를 찾을 수 없어요");
+
+
+        private String msg;
+
+        BudgetMessage(String msg) {
+            this.msg = msg;
+        }
+    }
 }

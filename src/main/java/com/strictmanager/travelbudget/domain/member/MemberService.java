@@ -1,6 +1,6 @@
 package com.strictmanager.travelbudget.domain.member;
 
-import com.strictmanager.travelbudget.domain.plan.PlanException;
+import com.strictmanager.travelbudget.domain.member.MemberException.MemberMessage;
 import com.strictmanager.travelbudget.domain.plan.TripMember;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.user.User;
@@ -21,11 +21,12 @@ public class MemberService {
 
     public TripMember getMember(User user, TripPlan plan) {
         return tripMemberRepository.findByUserAndTripPlan(user, plan)
-            .orElseThrow(PlanException::new);
+            .orElseThrow(() -> new MemberException(MemberMessage.CAN_NOT_FIND_MEMBER));
     }
 
     public TripMember getMember(Long id) {
-        return tripMemberRepository.findById(id).orElseThrow(() -> new MemberException("Can not find Member"));
+        return tripMemberRepository.findById(id).orElseThrow(() -> new MemberException(
+            MemberMessage.CAN_NOT_FIND_MEMBER));
     }
 
     public void deleteMember(TripMember member) {

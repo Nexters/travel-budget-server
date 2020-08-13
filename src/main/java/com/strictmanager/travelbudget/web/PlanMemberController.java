@@ -7,9 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.strictmanager.travelbudget.application.member.BudgetManager;
 import com.strictmanager.travelbudget.application.member.BudgetVO;
 import com.strictmanager.travelbudget.application.member.PlanManager;
-import com.strictmanager.travelbudget.domain.member.MemberException;
 import com.strictmanager.travelbudget.domain.user.User;
-import com.strictmanager.travelbudget.utils.InviteCodeUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
@@ -38,11 +36,7 @@ public class PlanMemberController {
         @AuthenticationPrincipal User user,
         @RequestBody @Valid MemberCreateRequest request) {
 
-        Long planId = InviteCodeUtils
-            .getPlanIdFromInviteCode(request.getInviteCode())
-            .orElseThrow(() -> new MemberException("This code is invalid"));
-
-        Long memberId = planManager.createPlanMember(user, planId);
+        Long memberId = planManager.createPlanMember(user, request.getInviteCode());
 
         return ResponseEntity.ok(new MemberResponse(memberId));
     }

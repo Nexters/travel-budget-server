@@ -1,15 +1,29 @@
 package com.strictmanager.travelbudget.domain.member;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Getter
+@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class MemberException extends RuntimeException {
 
-    private final String message = "Member error";
-
-
-    public MemberException(String message) {
-        super(message);
+    public MemberException(MemberMessage messageCase) {
+        super(messageCase.getMsg());
     }
 
+    @Getter
+    public enum MemberMessage {
+        INVITE_CODE_INVALID("초대코드가 유효하지 않은걸요 :)"),
+        IS_JOINED_MEMBER("이미 방에 존재하는 사용자에요 :)"),
+        CAN_NOT_FIND_MEMBER("사용자를 찾을 수 없어요"),
+        NOT_HAVE_PERMISSION("방장만 진행할 수 있어요");
+
+
+        private String msg;
+
+        MemberMessage(String msg) {
+            this.msg = msg;
+        }
+    }
 }

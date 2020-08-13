@@ -2,6 +2,7 @@ package com.strictmanager.travelbudget.utils;
 
 import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.plan.PlanException;
+import com.strictmanager.travelbudget.domain.plan.PlanException.PlanMessage;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ public class LocalDateUtils {
 
     public static void checkDateValidation(LocalDate startDate, LocalDate endDate) {
         if (startDate.compareTo(endDate) > 0) {
-            throw new PlanException();
+            throw new PlanException(PlanMessage.INVALID_DATE);
         }
     }
 

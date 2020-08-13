@@ -2,6 +2,7 @@ package com.strictmanager.travelbudget.application.member;
 
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetException;
+import com.strictmanager.travelbudget.domain.budget.BudgetException.BudgetMessage;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import com.strictmanager.travelbudget.domain.member.MemberService;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
@@ -44,7 +45,7 @@ public class BudgetManager {
         Budget budget = budgetService.getBudget(budgetId);
 
         if (!budget.getCreateUserId().equals(userId)) {
-            throw new BudgetException();
+            throw new BudgetException(BudgetMessage.EDIT_ONLY_MINE);
         }
 
         return budgetService.saveBudget(budget.changeAmount(amount));
