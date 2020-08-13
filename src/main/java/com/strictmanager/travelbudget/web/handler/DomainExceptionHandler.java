@@ -1,9 +1,10 @@
-package com.strictmanager.travelbudget.domain;
+package com.strictmanager.travelbudget.web.handler;
 
 import com.strictmanager.travelbudget.domain.budget.BudgetException;
 import com.strictmanager.travelbudget.domain.member.MemberException;
 import com.strictmanager.travelbudget.domain.payment.PaymentException;
 import com.strictmanager.travelbudget.domain.plan.PlanException;
+import com.strictmanager.travelbudget.web.ApiErrorResponse;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

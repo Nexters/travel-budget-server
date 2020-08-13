@@ -1,4 +1,4 @@
-package com.strictmanager.travelbudget.domain;
+package com.strictmanager.travelbudget.web;
 
 import java.time.LocalDateTime;
 import lombok.Builder;
