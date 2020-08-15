@@ -95,4 +95,9 @@ public class User extends BaseAuditingEntity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public User changeNickname(String nickname) {
+        this.nickname = nickname;
+        return this;
+    }
 }
