@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.strictmanager.travelbudget.application.plan.AmountItemVO;
 import com.strictmanager.travelbudget.application.plan.MemberVO;
-import com.strictmanager.travelbudget.application.plan.PlanManager;
 import com.strictmanager.travelbudget.application.plan.PlanCreateVO;
+import com.strictmanager.travelbudget.application.plan.PlanManager;
 import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.plan.PlanService;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
@@ -111,7 +111,7 @@ public class PlanController {
         TripPlan plan = planManager.getPlan(planId);
 
         return ResponseEntity.ok(PlanDetailResponse.builder()
-            .memberId(planManager.getMemberId(user, plan))
+            .memberId(planManager.getMember(user, plan).getId())
             .name(plan.getName())
             .sharedVO(planManager.getSharedPlanInfo(plan))
             .personalVO(planManager.getPersonalPlanInfo(user, plan))
@@ -123,6 +123,7 @@ public class PlanController {
     @ApiOperation(value = "여행 친구목록 조회")
     @Transactional(readOnly = true)
     public ResponseEntity<PlanMemberResponse> getPlanMember(
+        @AuthenticationPrincipal User user,
         @PathVariable(value = "id") Long planId) {
 
         List<MemberResponse> planMembers = planManager.getMembers(planId).stream()
@@ -134,9 +135,11 @@ public class PlanController {
             ).collect(Collectors.toList());
 
         final TripPlan plan = planService.getPlan(planId);
+        Authority myAuthority = planManager.getMember(user, plan).getAuthority();
 
         return ResponseEntity.ok(new PlanMemberResponse(
             InviteCodeUtils.generatePlanInviteCode(plan.getId(), plan.getCreateUserId()),
+            myAuthority,
             planMembers
         ));
     }
@@ -163,12 +166,19 @@ public class PlanController {
 
         @ApiModelProperty(value = "방 초대 해시코드")
         private final String inviteCode;
+
+        @ApiModelProperty(value = "내 권한")
+        private final Authority myAuthority;
+
         @ApiModelProperty(value = "멤버 목록")
         private final List<MemberResponse> members;
 
         @Builder
-        PlanMemberResponse(String inviteCode, List<MemberResponse> members) {
+        PlanMemberResponse(String inviteCode,
+            Authority myAuthority,
+            List<MemberResponse> members) {
             this.inviteCode = inviteCode;
+            this.myAuthority = myAuthority;
             this.members = members;
         }
     }

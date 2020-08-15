@@ -120,8 +120,8 @@ public class PlanManager {
         return planService.getPlan(planId).getTripMembers();
     }
 
-    public Long getMemberId(User user, TripPlan plan) {
-        return memberService.getMember(user, plan).getId();
+    public TripMember getMember(User user, TripPlan plan) {
+        return memberService.getMember(user, plan);
     }
 
     public AmountItemVO getSharedPlanInfo(TripPlan plan) {
