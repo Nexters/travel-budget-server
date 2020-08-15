@@ -10,9 +10,11 @@ import com.strictmanager.travelbudget.application.member.MemberVO;
 import com.strictmanager.travelbudget.application.member.PlanManager;
 import com.strictmanager.travelbudget.application.member.PlanVO;
 import com.strictmanager.travelbudget.domain.YnFlag;
+import com.strictmanager.travelbudget.domain.plan.PlanService;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.user.User;
+import com.strictmanager.travelbudget.utils.InviteCodeUtils;
 import com.strictmanager.travelbudget.utils.LocalDateUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -45,8 +47,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class PlanController {
 
-
     private final PlanManager planManager;
+    private final PlanService planService;
 
     @GetMapping("/plans")
     @ApiOperation(value = "여행 목록 조회")
@@ -81,7 +83,6 @@ public class PlanController {
                 .build());
     }
 
-
     @GetMapping("/plans/{id}")
     @ApiOperation(value = "여행 상세 조회")
     @Transactional(readOnly = true)
@@ -98,11 +99,10 @@ public class PlanController {
             .build());
     }
 
-
     @GetMapping("/plans/{id}/members")
     @ApiOperation(value = "여행 친구목록 조회")
     @Transactional(readOnly = true)
-    public ResponseEntity<List<MemberResponse>> getPlanMember(
+    public ResponseEntity<PlanMemberResponse> getPlanMember(
         @PathVariable(value = "id") Long planId) {
 
         List<MemberResponse> planMembers = planManager.getMembers(planId).stream()
@@ -113,13 +113,17 @@ public class PlanController {
                 .profileImage(member.getUser().getProfileImage()).build()
             ).collect(Collectors.toList());
 
-        return ResponseEntity.ok(planMembers);
-    }
+        final TripPlan plan = planService.getPlan(planId);
 
+        return ResponseEntity.ok(new PlanMemberResponse(
+            InviteCodeUtils.generatePlanInviteCode(plan.getId(), plan.getCreateUserId()),
+            planMembers
+        ));
+    }
 
     @DeleteMapping("/plans/{planId}/members/{memberId}")
     @ApiOperation(value = "멤버 삭제")
-    public ResponseEntity deleteMember(
+    public ResponseEntity<?> deleteMember(
         @AuthenticationPrincipal User user,
         @ApiParam(value = "여행 id", required = true) @PathVariable(name = "planId") Long planId,
         @ApiParam(value = "삭제 할 멤버 id", required = true) @PathVariable(name = "memberId") Long memberId) {
@@ -133,6 +137,21 @@ public class PlanController {
         return ResponseEntity.noContent().build();
     }
 
+    @Getter
+    @ApiModel
+    private static class PlanMemberResponse {
+
+        @ApiModelProperty(value = "방 초대 해시코드")
+        private final String inviteCode;
+        @ApiModelProperty(value = "멤버 목록")
+        private final List<MemberResponse> members;
+
+        @Builder
+        public PlanMemberResponse(String inviteCode, List<MemberResponse> members) {
+            this.inviteCode = inviteCode;
+            this.members = members;
+        }
+    }
 
     @Getter
     @ApiModel
@@ -156,7 +175,6 @@ public class PlanController {
             this.profileImage = profileImage;
         }
     }
-
 
     @Getter
     @ApiModel
