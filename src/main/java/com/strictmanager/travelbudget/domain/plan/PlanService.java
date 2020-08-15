@@ -29,7 +29,7 @@ public class PlanService {
     }
 
     public List<TripPlan> getDoingPlans(User user) {
-        return tripMemberRepository.findByUserAndTripPlanStartDateBeforeAndTripPlanEndDateGreaterThanEqual(user, LocalDate.now(), LocalDate.now())
+        return tripMemberRepository.findByUserAndTripPlanStartDateLessThanEqualAndTripPlanEndDateGreaterThanEqual(user, LocalDate.now(), LocalDate.now())
             .map(TripMember::getTripPlan)
             .filter(tripPlan -> tripPlan.getIsDelete().equals(YnFlag.N))
             .sorted(Comparator.comparing(TripPlan::getStartDate))

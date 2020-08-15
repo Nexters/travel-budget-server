@@ -16,7 +16,7 @@ public interface TripMemberRepository extends JpaRepository<TripMember, Long> {
     Stream<TripMember> findByUserAndTripPlanEndDateAfter(User user, LocalDate nowDate);
 
     //여행중인 목록
-    Stream<TripMember> findByUserAndTripPlanStartDateBeforeAndTripPlanEndDateGreaterThanEqual(
+    Stream<TripMember> findByUserAndTripPlanStartDateLessThanEqualAndTripPlanEndDateGreaterThanEqual(
         User user, LocalDate nowDate, LocalDate nowDate2);
 
     //다녀온 여행 목록
