@@ -37,6 +37,11 @@ public class ApiControllerExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<?> handleUserException(HttpServletRequest request, Exception exception) {
+        log.debug("User exception occurred. {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(HttpServletRequest request, Exception exception) {
@@ -44,9 +49,4 @@ public class ApiControllerExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
-    @ExceptionHandler(UserException.class)
-    public ResponseEntity<?> handleUserException(HttpServletRequest request, Exception exception) {
-        log.debug("User exception occurred. {}", exception.getMessage(), exception);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
 }
