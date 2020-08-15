@@ -37,11 +37,11 @@ public class TripMember extends BaseAuditingEntity {
     @Column(columnDefinition="ENUM('OWNER', 'MEMBER')", nullable = false)
     private Authority authority;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "trip_plan_id")
     private TripPlan tripPlan;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 

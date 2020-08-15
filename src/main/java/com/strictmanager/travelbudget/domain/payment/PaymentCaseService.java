@@ -26,6 +26,10 @@ public class PaymentCaseService {
         return paymentCaseRepository.save(paymentCase);
     }
 
+    public void deletePaymentCase(PaymentCase paymentCase) {
+        paymentCaseRepository.delete(paymentCase);
+    }
+
     public PaymentCase updatePaymentCase(Long userId, Long paymentId, PaymentVO paymentVO) {
         final PaymentCase paymentCase = paymentCaseRepository.findById(paymentId)
             .orElseThrow(() -> new PaymentException(PaymentMessage.CAN_NOT_FIND_PAYMENT));
