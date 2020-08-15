@@ -182,6 +182,10 @@ public class PlanManager {
 
         TripPlan plan = planService.getPlan(planId);
 
+        if(plan.getIsPublic().equals(YnFlag.N)) {
+            throw new MemberException(MemberMessage.CAN_NOT_JOIN_PERSONAL_PLAN);
+        }
+
         plan.getTripMembers().stream()
             .map(TripMember::getUser)
             .map(User::getId)
