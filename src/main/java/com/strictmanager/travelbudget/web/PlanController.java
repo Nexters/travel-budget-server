@@ -112,6 +112,7 @@ public class PlanController {
 
         return ResponseEntity.ok(PlanDetailResponse.builder()
             .memberId(planManager.getMemberId(user, plan))
+            .name(plan.getName())
             .sharedVO(planManager.getSharedPlanInfo(plan))
             .personalVO(planManager.getPersonalPlanInfo(user, plan))
             .dates(LocalDateUtils.getLocalDates(plan.getStartDate(), plan.getEndDate()))
@@ -201,6 +202,9 @@ public class PlanController {
         @ApiModelProperty(value = "여행 멤버 id")
         private final Long memberId;
 
+        @ApiModelProperty(value = "여행 명")
+        private final String name;
+
         @JsonInclude(Include.NON_NULL)
         private final AmountItem shared;
 
@@ -212,10 +216,11 @@ public class PlanController {
         @Builder
         PlanDetailResponse(
             Long memberId,
-            AmountItemVO sharedVO,
+            String name, AmountItemVO sharedVO,
             AmountItemVO personalVO,
             List<LocalDate> dates) {
             this.memberId = memberId;
+            this.name = name;
             this.shared = AmountItem.of(sharedVO);
             this.personal = AmountItem.of(personalVO);
             this.dates = dates.stream().map(LocalDate::toString).collect(Collectors.toList());
