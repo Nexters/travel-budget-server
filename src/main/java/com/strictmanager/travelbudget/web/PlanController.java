@@ -25,6 +25,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -246,6 +247,9 @@ public class PlanController {
             }
 
             static AmountItem of(AmountItemVO vo) {
+                if (Objects.isNull(vo)) {
+                    return null;
+                }
                 return AmountItem.builder()
                     .purposeAmount(vo.getPurposeAmount())
                     .suggestAmount(vo.getSuggestAmount())
