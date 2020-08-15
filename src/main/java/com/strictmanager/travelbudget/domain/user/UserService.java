@@ -23,6 +23,12 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(userId).orElseThrow(UserException::new);
     }
 
+    public User updateUserNickname(Long userId, String nickname) {
+        final User user = userRepository.findById(userId)
+            .orElseThrow(UserException::new);
+        return userRepository.save(user.changeNickname(nickname));
+    }
+
     public Optional<User> getUserByKakaoId(String kakaoId) {
         return userRepository.findByKakaoId(kakaoId);
     }

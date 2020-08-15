@@ -18,9 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -29,8 +27,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class AuthController {
     private static final String DEFAULT_NICKNAME = "엄격한관리자";
-    private static final String DEFAULT_PROFILE_IMAGE = "https://publicdomainvectors.org/photos/abstract-user-flat-4.png";
-    private static final String DEFAULT_THUMBNAIL_IMAGE = "https://publicdomainvectors.org/photos/abstract-user-flat-4.png";
+    private static final String DEFAULT_PROFILE_IMAGE = "https://i.ibb.co/bPkqftp/select-img.png";
+    private static final String DEFAULT_THUMBNAIL_IMAGE = "https://i.ibb.co/bPkqftp/select-img.png";
 
     private final JwtTokenUtil jwtAccessTokenUtil;
     private final JwtTokenUtil jwtRefreshTokenUtil;
