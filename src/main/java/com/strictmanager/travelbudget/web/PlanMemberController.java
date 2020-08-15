@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.strictmanager.travelbudget.application.member.BudgetManager;
 import com.strictmanager.travelbudget.application.member.BudgetVO;
-import com.strictmanager.travelbudget.application.member.PlanManager;
+import com.strictmanager.travelbudget.application.plan.PlanManager;
 import com.strictmanager.travelbudget.domain.user.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -66,7 +66,7 @@ public class PlanMemberController {
         private final String inviteCode;
 
         @JsonCreator
-        private MemberCreateRequest(
+        MemberCreateRequest(
             @JsonProperty(value = "invite_code", required = true) String inviteCode) {
             this.inviteCode = inviteCode;
         }
@@ -77,7 +77,7 @@ public class PlanMemberController {
 
         private final Long memberId;
 
-        private MemberResponse(Long memberId) {
+        MemberResponse(Long memberId) {
             this.memberId = requireNonNull(memberId);
         }
     }
@@ -90,7 +90,7 @@ public class PlanMemberController {
         private final Long amount;
 
         @JsonCreator
-        private BudgetCreateRequest(
+        BudgetCreateRequest(
             @JsonProperty(value = "amount", required = true) Long amount
         ) {
             this.amount = amount;
@@ -102,7 +102,7 @@ public class PlanMemberController {
 
         private final Long budgetId;
 
-        private BudgetResponse(Long budgetId) {
+        BudgetResponse(Long budgetId) {
             this.budgetId = requireNonNull(budgetId);
         }
     }

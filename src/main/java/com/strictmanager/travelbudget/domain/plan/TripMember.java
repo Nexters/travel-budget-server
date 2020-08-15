@@ -35,7 +35,6 @@ public class TripMember extends BaseAuditingEntity {
     @Enumerated(EnumType.STRING)
     private Authority authority;
 
-
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "trip_plan_id")
     private TripPlan tripPlan;

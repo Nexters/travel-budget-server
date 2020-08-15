@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 @ToString
 public class ApiErrorResponse {
 
-
     private final LocalDateTime timeStamp;
     private final int code;
     private final String message;

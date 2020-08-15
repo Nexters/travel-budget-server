@@ -20,8 +20,7 @@ public class MemberException extends RuntimeException {
         CAN_NOT_FIND_MEMBER("사용자를 찾을 수 없어요"),
         NOT_HAVE_PERMISSION("방장만 진행할 수 있어요");
 
-
-        private String msg;
+        private final String msg;
 
         MemberMessage(String msg) {
             this.msg = msg;

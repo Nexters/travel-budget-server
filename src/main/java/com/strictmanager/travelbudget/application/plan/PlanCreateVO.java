@@ -1,4 +1,6 @@
-package com.strictmanager.travelbudget.application.member;
+package com.strictmanager.travelbudget.application.plan;
+
+import static java.util.Objects.requireNonNull;
 
 import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.user.User;
@@ -7,7 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class PlanVO {
+public class PlanCreateVO {
 
     private final User createUser;
     private final String name;
@@ -17,19 +19,18 @@ public class PlanVO {
     private final YnFlag isPublic;
 
     @Builder
-    public PlanVO(
+    public PlanCreateVO(
         User user,
         String name,
         LocalDate startDate,
         LocalDate endDate,
         Long sharedBudget,
         YnFlag isPublic) {
-        this.createUser = user;
-        this.name = name;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.sharedBudget = sharedBudget;
-        this.isPublic = isPublic;
+        this.createUser = requireNonNull(user);
+        this.name = requireNonNull(name);
+        this.startDate = requireNonNull(startDate);
+        this.endDate = requireNonNull(endDate);
+        this.sharedBudget = requireNonNull(sharedBudget);
+        this.isPublic = requireNonNull(isPublic);
     }
-
 }
