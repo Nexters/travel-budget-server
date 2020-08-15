@@ -4,8 +4,7 @@ import java.util.Optional;
 
 public final class InviteCodeUtils {
 
-    private InviteCodeUtils() {
-    }
+    private InviteCodeUtils() { }
 
     public static String generatePlanInviteCode(Long planId, Long userId) {
         return String.format("p%du%d", planId, userId);

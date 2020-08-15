@@ -26,13 +26,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class PlanMemberController {
 
-
     private final PlanManager planManager;
     private final BudgetManager budgetManager;
 
     @PostMapping("/members")
     @ApiOperation(value = "여행계획 멤버 추가")
-    public ResponseEntity<Object> createPlanMember(
+    public ResponseEntity<MemberResponse> createPlanMember(
         @AuthenticationPrincipal User user,
         @RequestBody @Valid MemberCreateRequest request) {
 
@@ -107,5 +106,4 @@ public class PlanMemberController {
             this.budgetId = requireNonNull(budgetId);
         }
     }
-
 }
