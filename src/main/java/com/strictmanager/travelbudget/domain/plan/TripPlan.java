@@ -52,7 +52,7 @@ public class TripPlan extends BaseAuditingEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition="ENUM('Y','N')", nullable = false)
-    private YnFlag isDelete;
+    private YnFlag isDelete = YnFlag.N;
 
     @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "budget_id")
