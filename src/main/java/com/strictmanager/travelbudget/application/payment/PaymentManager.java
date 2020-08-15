@@ -23,7 +23,8 @@ public class PaymentManager {
     private final BudgetService budgetService;
     private final UserService userService;
 
-    public List<PaymentCase> getPaymentCases(Long userId, Long budgetId, YnFlag isReady, LocalDate paymentDate) {
+    public List<PaymentCase> getPaymentCases(Long userId, Long budgetId, YnFlag isReady,
+        LocalDate paymentDate) {
         final Budget budget = budgetService.getBudget(budgetId);
         if (!budget.getCreateUserId().equals(userId)) {
             throw new PaymentException(PaymentMessage.EDIT_ONLY_MINE);
@@ -73,11 +74,23 @@ public class PaymentManager {
             paymentVO
         );
 
-        final Long updatedBudgetPaymentAmount = budget.getPaymentAmount() - originPrice + updatedPrice;
+        final Long updatedBudgetPaymentAmount =
+            budget.getPaymentAmount() - originPrice + updatedPrice;
         budgetService.updateBudgetPaymentAmount(
             paymentVO.getUserId(), paymentVO.getBudgetId(), updatedBudgetPaymentAmount
         );
 
         return paymentId;
+    }
+
+    public void deletePaymentCase(Long paymentId) {
+        PaymentCase paymentCase = paymentCaseService.getPaymentCase(paymentId);
+
+        Budget budget = paymentCase.getBudget();
+
+        budgetService.saveBudget(
+            budget.changePaymentAmount(budget.getPaymentAmount() - paymentCase.getPrice()));
+
+        paymentCaseService.deletePaymentCase(paymentCase);
     }
 }

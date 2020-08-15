@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,12 +49,14 @@ public class PaymentController {
         @ApiParam(value = "사전 지출 여부", required = false, example = "Y") @RequestParam(name = "is_ready", required = false, defaultValue = "N") YnFlag isReady,
         @ApiParam(value = "조회할 날짜", required = false, example = "2020-08-01") @RequestParam(name = "payment_dt", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate paymentDt
     ) {
-        final List<PaymentCase> paymentCases = paymentManager.getPaymentCases(user.getId(), budgetId, isReady, paymentDt);
+        final List<PaymentCase> paymentCases = paymentManager
+            .getPaymentCases(user.getId(), budgetId, isReady, paymentDt);
 
         return ResponseEntity.ok(
             paymentCases.stream()
                 .map(paymentCase ->
                     new PaymentResponse(
+                        paymentCase.getId(),
                         paymentCase.getPrice(),
                         paymentCase.getTitle(),
                         paymentCase.getPaymentDt(),
@@ -109,6 +112,16 @@ public class PaymentController {
         return ResponseEntity.ok(new CreatePaymentResponse(paymentCaseId));
     }
 
+    @ApiOperation(value = "지출내역 삭제")
+    @DeleteMapping("/payments/{paymentId}")
+    public ResponseEntity<?> deletePayment(
+        @PathVariable @Valid Long paymentId
+    ) {
+        paymentManager.deletePaymentCase(paymentId);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @ApiModel
     @Getter
     private static class PaymentRequest {
@@ -154,6 +167,7 @@ public class PaymentController {
     @Getter
     private static class PaymentResponse {
 
+        private final Long paymentId;
         private final Long price;
         private final String title;
         private final Long paymentDt;
@@ -162,6 +176,7 @@ public class PaymentController {
         private final YnFlag isReady;
 
         PaymentResponse(
+            Long paymentId,
             Long price,
             String title,
             LocalDateTime paymentDt,
@@ -169,6 +184,7 @@ public class PaymentController {
             Long budgetId,
             YnFlag isReady
         ) {
+            this.paymentId = paymentId;
             this.price = price;
             this.title = title;
             this.paymentDt = LocalDateTimeUtils.convertToTimestamp(paymentDt);
