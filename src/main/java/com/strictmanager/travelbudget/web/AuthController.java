@@ -27,8 +27,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class AuthController {
     private static final String DEFAULT_NICKNAME = "엄격한관리자";
-    private static final String DEFAULT_PROFILE_IMAGE = "https://i.ibb.co/bPkqftp/select-img.png";
-    private static final String DEFAULT_THUMBNAIL_IMAGE = "https://i.ibb.co/bPkqftp/select-img.png";
+
+    private static final String[] RANDOM_DEFAULT_PROFILE_IMAGE_ARRAY = {
+        "https://i.ibb.co/xMzZqfF/profile-image-01.png",
+        "https://i.ibb.co/xXDpDhz/profile-image-02.png",
+        "https://i.ibb.co/FYXTdTJ/profile-image-03.png"
+    };
+
 
     private final JwtTokenUtil jwtAccessTokenUtil;
     private final JwtTokenUtil jwtRefreshTokenUtil;
@@ -38,12 +43,15 @@ public class AuthController {
     @PostMapping("/kakao/signup")
     public ResponseEntity<SignUpResponse> kakaoSignin(@RequestBody @Valid KakaoUserRequest kakaoUserRequest) {
         log.debug("[kakaoSignin] params - {}", kakaoUserRequest);
+
+        int random = (int) (Math.random() * RANDOM_DEFAULT_PROFILE_IMAGE_ARRAY.length);
+
         User signUpUser = userService.signUp(
             User.builder()
                 .kakaoId(kakaoUserRequest.getKakaoId())
                 .nickname(ObjectUtils.defaultIfNull(kakaoUserRequest.getNickname(), DEFAULT_NICKNAME))
-                .profileImage(ObjectUtils.defaultIfNull(kakaoUserRequest.getProfileImage(), DEFAULT_PROFILE_IMAGE))
-                .thumbnailImage(ObjectUtils.defaultIfNull(kakaoUserRequest.getThumbnailImage(), DEFAULT_THUMBNAIL_IMAGE))
+                .profileImage(ObjectUtils.defaultIfNull(kakaoUserRequest.getProfileImage(), RANDOM_DEFAULT_PROFILE_IMAGE_ARRAY[random]))
+                .thumbnailImage(ObjectUtils.defaultIfNull(kakaoUserRequest.getThumbnailImage(), RANDOM_DEFAULT_PROFILE_IMAGE_ARRAY[random]))
                 .build()
         );
         return ResponseEntity.ok(new SignUpResponse(signUpUser.getKakaoId()));
