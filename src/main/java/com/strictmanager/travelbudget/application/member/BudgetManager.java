@@ -5,13 +5,7 @@ import com.strictmanager.travelbudget.domain.budget.BudgetException;
 import com.strictmanager.travelbudget.domain.budget.BudgetException.BudgetMessage;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
 import com.strictmanager.travelbudget.domain.member.MemberService;
-import com.strictmanager.travelbudget.domain.payment.PaymentCase;
-import com.strictmanager.travelbudget.domain.payment.PaymentCaseCategory;
 import com.strictmanager.travelbudget.domain.plan.TripMember;
-import com.strictmanager.travelbudget.web.PlanBudgetController.BudgetStaticResponse;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.List;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,7 +34,7 @@ public class BudgetManager {
         return budget.getId();
     }
 
-
+    @Transactional
     public Budget updateBudgetAmount(Long userId, Long budgetId, Long amount) {
         Budget budget = budgetService.getBudget(budgetId);
 
@@ -49,29 +43,5 @@ public class BudgetManager {
         }
 
         return budgetService.saveBudget(budget.changeAmount(amount));
-    }
-
-    @Transactional
-    public BudgetStaticResponse getStatics(Long budgetId) {
-        Budget budget = budgetService.getBudget(budgetId);
-
-        EnumMap<PaymentCaseCategory, Long> categoryMap = new EnumMap<>(
-            PaymentCaseCategory.class);
-
-        Arrays.stream(PaymentCaseCategory.values()).forEach(key -> categoryMap.put(key, 0L));
-
-        List<PaymentCase> paymentCases = budget.getPaymentCases();
-
-        paymentCases.forEach(paymentCase -> {
-            PaymentCaseCategory key = paymentCase.getCategory();
-            Long sumPrice = paymentCase.getPrice() + categoryMap.get(key);
-            categoryMap.put(key, sumPrice);
-        });
-
-        return BudgetStaticResponse.builder()
-            .purposeAmount(budget.getAmount())
-            .usedAmount(budget.getPaymentAmount())
-            .categories(categoryMap)
-            .build();
     }
 }

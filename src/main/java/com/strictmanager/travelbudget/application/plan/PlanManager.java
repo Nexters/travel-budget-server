@@ -1,4 +1,4 @@
-package com.strictmanager.travelbudget.application.member;
+package com.strictmanager.travelbudget.application.plan;
 
 import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.budget.Budget;
@@ -15,8 +15,6 @@ import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.utils.InviteCodeUtils;
 import com.strictmanager.travelbudget.utils.LocalDateUtils;
-import com.strictmanager.travelbudget.web.PlanController.PlanDetailResponse.AmountItem;
-import com.strictmanager.travelbudget.web.PlanController.PlanResponse;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,7 +36,7 @@ public class PlanManager {
     private final BudgetService budgetService;
     private final PaymentCaseService paymentCaseService;
 
-    public List<PlanResponse> getPlans(User user, boolean isComing) {
+    public List<PlanVO> getPlans(User user, boolean isComing) {
 
         Function<TripPlan, Budget> budgetFindFunction = (plan) ->
             Objects.requireNonNullElseGet(plan.getBudget(),
@@ -62,7 +60,7 @@ public class PlanManager {
             planStream = planService.getFinishPlans(user);
         }
 
-        return planStream.map(plan -> PlanResponse.builder()
+        return planStream.map(plan -> PlanVO.builder()
             .planId(plan.getId())
             .name(plan.getName())
             .startDate(plan.getStartDate())
@@ -83,7 +81,7 @@ public class PlanManager {
     }
 
     @Transactional
-    public TripPlan createPlan(PlanVO vo) {
+    public TripPlan createPlan(PlanCreateVO vo) {
         LocalDateUtils.checkDateValidation(vo.getStartDate(), vo.getEndDate());
 
         Budget budget = null;
@@ -126,26 +124,24 @@ public class PlanManager {
         return memberService.getMember(user, plan).getId();
     }
 
-    public AmountItem getSharedPlanInfo(TripPlan plan) {
+    public AmountItemVO getSharedPlanInfo(TripPlan plan) {
         return budgetService.getPublicBudget(plan).map(budget -> createPlanInfo(plan, budget))
             .orElse(null);
     }
 
-
-    public AmountItem getPersonalPlanInfo(User user, TripPlan plan) {
-        return
-            budgetService.getPersonalBudget(user, plan)
+    public AmountItemVO getPersonalPlanInfo(User user, TripPlan plan) {
+        return budgetService.getPersonalBudget(user, plan)
             .map(budget -> createPlanInfo(plan, budget))
             .orElse(null);
     }
 
-    private AmountItem createPlanInfo(TripPlan plan, Budget budget) {
+    private AmountItemVO createPlanInfo(TripPlan plan, Budget budget) {
         long readyUsePrice = paymentCaseService.getPaymentCaseByReady(budget)
             .stream()
             .mapToLong(PaymentCase::getPrice).sum();
         int planDayCnt = plan.getStartDate().until(plan.getEndDate()).getDays() + 1;
 
-        return AmountItem.builder()
+        return AmountItemVO.builder()
             .purposeAmount(budget.getAmount())
             .paymentAmount(budget.getPaymentAmount())
             .suggestAmount(
@@ -154,6 +150,7 @@ public class PlanManager {
             .build();
     }
 
+    @Transactional
     public void deleteMember(MemberVO vo) {
         TripMember requestMember = memberService.getMember(
             vo.getUser(),
@@ -182,7 +179,7 @@ public class PlanManager {
 
         TripPlan plan = planService.getPlan(planId);
 
-        if(plan.getIsPublic().equals(YnFlag.N)) {
+        if (plan.getIsPublic().equals(YnFlag.N)) {
             throw new MemberException(MemberMessage.CAN_NOT_JOIN_PERSONAL_PLAN);
         }
 

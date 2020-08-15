@@ -57,7 +57,7 @@ public class UserController {
         private final String profileImage;
         private final String thumbnailImage;
 
-        public UserResponse(
+        UserResponse(
             Long userId,
             String kakaoId,
             String nickname,
@@ -77,7 +77,7 @@ public class UserController {
         private final String nickname;
 
         @JsonCreator
-        private UpdateUserRequest(
+        UpdateUserRequest(
             @JsonProperty(value = "nickname", required = true) String nickname
         ) {
             this.nickname = nickname;
@@ -89,7 +89,7 @@ public class UserController {
 
         private final Long userId;
 
-        public UpdateUserResponse(Long userId) {
+        UpdateUserResponse(Long userId) {
             this.userId = userId;
         }
     }

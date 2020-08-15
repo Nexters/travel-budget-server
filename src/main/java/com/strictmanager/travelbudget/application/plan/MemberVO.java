@@ -1,4 +1,4 @@
-package com.strictmanager.travelbudget.application.member;
+package com.strictmanager.travelbudget.application.plan;
 
 import static java.util.Objects.requireNonNull;
 
@@ -12,7 +12,6 @@ public class MemberVO {
     private final User user;
     private final Long planId;
     private final Long memberId;
-
 
     @Builder
     public MemberVO(User user, Long planId, Long memberId) {

@@ -146,7 +146,7 @@ public class PaymentController {
 
         private final Long paymentId;
 
-        private CreatePaymentResponse(Long paymentId) {
+        CreatePaymentResponse(Long paymentId) {
             this.paymentId = requireNonNull(paymentId);
         }
     }
@@ -161,7 +161,7 @@ public class PaymentController {
         private final Long budgetId;
         private final YnFlag isReady;
 
-        public PaymentResponse(
+        PaymentResponse(
             Long price,
             String title,
             LocalDateTime paymentDt,

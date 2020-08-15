@@ -14,8 +14,7 @@ public class BudgetException extends RuntimeException {
         EDIT_ONLY_MINE("본인의 예산만 수정이 가능해요"),
         CAN_NOT_FIND_BUDGET("예산 정보를 찾을 수 없어요");
 
-
-        private String msg;
+        private final String msg;
 
         BudgetMessage(String msg) {
             this.msg = msg;

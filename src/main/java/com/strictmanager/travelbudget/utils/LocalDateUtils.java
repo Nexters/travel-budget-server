@@ -10,7 +10,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class LocalDateUtils {
+public final class LocalDateUtils {
 
     public static List<LocalDate> getLocalDates(LocalDate startDate, LocalDate endDate) {
         List<LocalDate> dates = new ArrayList<>();

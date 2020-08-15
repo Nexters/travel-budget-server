@@ -4,6 +4,8 @@ import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.strictmanager.travelbudget.application.budgetstatistics.BudgetStatisticsManager;
+import com.strictmanager.travelbudget.application.budgetstatistics.BudgetStatisticsVO;
 import com.strictmanager.travelbudget.application.member.BudgetManager;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.payment.PaymentCaseCategory;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class PlanBudgetController {
 
     private final BudgetManager budgetManager;
+    private final BudgetStatisticsManager budgetStatisticsManager;
 
     @PutMapping("/budgets/{id}")
     @ApiOperation(value = "목표 예산 변경 (여행 & 개인 전체)")
@@ -48,17 +51,24 @@ public class PlanBudgetController {
 
     @GetMapping("/budgets/{id}/statics")
     @ApiOperation(value = "지출 통계 조회")
-    public ResponseEntity getBudgetStatics(
+    public ResponseEntity<BudgetStatisticsResponse> getBudgetStatics(
         @PathVariable(name = "id") Long budgetId
     ) {
-        BudgetStaticResponse statics = budgetManager.getStatics(budgetId);
+        BudgetStatisticsVO budgetStatisticsVO = budgetStatisticsManager.getStatics(budgetId);
 
-        return ResponseEntity.ok(statics);
+        return ResponseEntity.ok(
+            BudgetStatisticsResponse
+                .builder()
+                .purposeAmount(budgetStatisticsVO.getPurposeAmount())
+                .usedAmount(budgetStatisticsVO.getUsedAmount())
+                .categories(budgetStatisticsVO.getCategories())
+                .build()
+        );
     }
 
     @Getter
     @ApiModel
-    public static class BudgetStaticResponse {
+    private static class BudgetStatisticsResponse {
 
         @ApiModelProperty(name = "목표 예산")
         private final Long purposeAmount;
@@ -69,9 +79,8 @@ public class PlanBudgetController {
         @ApiModelProperty(name = "카테고리별 사용 예산")
         private final EnumMap<PaymentCaseCategory, Long> categories;
 
-
         @Builder
-        public BudgetStaticResponse(Long purposeAmount, Long usedAmount,
+        BudgetStatisticsResponse(Long purposeAmount, Long usedAmount,
             EnumMap<PaymentCaseCategory, Long> categories) {
             this.purposeAmount = purposeAmount;
             this.usedAmount = usedAmount;
@@ -87,7 +96,7 @@ public class PlanBudgetController {
         private final Long amount;
 
         @JsonCreator
-        private BudgetUpdateRequest(
+        BudgetUpdateRequest(
             @JsonProperty(value = "amount", required = true) Long amount
         ) {
             this.amount = amount;
@@ -99,7 +108,7 @@ public class PlanBudgetController {
 
         private final Long budgetId;
 
-        private BudgetResponse(Long budgetId) {
+        BudgetResponse(Long budgetId) {
             this.budgetId = requireNonNull(budgetId);
         }
     }

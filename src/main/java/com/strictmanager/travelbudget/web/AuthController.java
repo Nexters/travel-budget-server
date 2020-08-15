@@ -86,7 +86,7 @@ public class AuthController {
         private final String profileImage;
 
         @JsonCreator
-        private KakaoUserRequest(
+        KakaoUserRequest(
             @JsonProperty(value = "kakao_id", required = true) String kakaoId,
             @JsonProperty(value = "nickname") String nickname,
             @JsonProperty(value = "thumbnail_image") String thumbnailImage,
@@ -106,7 +106,7 @@ public class AuthController {
         private final String kakaoId;
 
         @JsonCreator
-        private TokenCreateRequest(
+        TokenCreateRequest(
             @JsonProperty(value = "kakao_id", required = true) String kakaoId
         ) {
             this.kakaoId = kakaoId;
@@ -120,7 +120,7 @@ public class AuthController {
         private final String refreshToken;
 
         @JsonCreator
-        private TokenRefreshRequest(
+        TokenRefreshRequest(
             @JsonProperty(value = "refresh_token", required = true) String refreshToken
         ) {
             this.refreshToken = refreshToken;
@@ -132,7 +132,7 @@ public class AuthController {
 
         private final String kakaoId;
 
-        private SignUpResponse(String kakaoId) {
+        SignUpResponse(String kakaoId) {
             this.kakaoId = requireNonNull(kakaoId);
         }
     }
@@ -145,7 +145,7 @@ public class AuthController {
         private final Long expireDt;
         private final String tokenType = "Bearer";
 
-        private JwtResponse(String accessToken, String refreshToken, Date expireDt) {
+        JwtResponse(String accessToken, String refreshToken, Date expireDt) {
             this.accessToken = requireNonNull(accessToken);
             this.refreshToken = requireNonNull(refreshToken);
             this.expireDt = requireNonNull(expireDt.getTime());

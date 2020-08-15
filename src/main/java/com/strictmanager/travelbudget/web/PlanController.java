@@ -6,9 +6,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
-import com.strictmanager.travelbudget.application.member.MemberVO;
-import com.strictmanager.travelbudget.application.member.PlanManager;
-import com.strictmanager.travelbudget.application.member.PlanVO;
+import com.strictmanager.travelbudget.application.plan.AmountItemVO;
+import com.strictmanager.travelbudget.application.plan.MemberVO;
+import com.strictmanager.travelbudget.application.plan.PlanManager;
+import com.strictmanager.travelbudget.application.plan.PlanCreateVO;
 import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.plan.PlanService;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
@@ -56,9 +57,25 @@ public class PlanController {
     public ResponseEntity<List<PlanResponse>> getPlans(
         @AuthenticationPrincipal User user,
         @ApiParam(value = "진행중 여행 여부", example = "true", required = true) @RequestParam(name = "isComing") boolean isComing) {
-        List<PlanResponse> responses = planManager.getPlans(user, isComing);
+        List<PlanResponse> response =
+            planManager.getPlans(user, isComing)
+                .stream()
+                .map(vo -> PlanResponse.builder()
+                    .planId(vo.getPlanId())
+                    .budgetId(vo.getBudgetId())
+                    .name(vo.getName())
+                    .startDate(vo.getStartDate())
+                    .endDate(vo.getEndDate())
+                    .purposeAmount(vo.getPurposeAmount())
+                    .usedAmount(vo.getUsedAmount())
+                    .userCount(vo.getUserCount())
+                    .isPublic(vo.getIsPublic())
+                    .isDoing(vo.getIsDoing())
+                    .inviteCode(vo.getInviteCode())
+                    .build()
+                ).collect(Collectors.toList());
 
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/plans")
@@ -67,14 +84,15 @@ public class PlanController {
         HttpServletRequest httpServletRequest,
         @RequestBody CreatePlanRequest param) {
 
-        TripPlan plan = planManager.createPlan(PlanVO.builder()
-            .user(user)
-            .name(param.getName())
-            .startDate(param.getStartDate())
-            .endDate(param.getEndDate())
-            .sharedBudget(param.getSharedBudget())
-            .isPublic(param.getIsPublic())
-            .build());
+        TripPlan plan = planManager.createPlan(
+            PlanCreateVO.builder()
+                .user(user)
+                .name(param.getName())
+                .startDate(param.getStartDate())
+                .endDate(param.getEndDate())
+                .sharedBudget(param.getSharedBudget())
+                .isPublic(param.getIsPublic())
+                .build());
 
         return ResponseEntity
             .created(URI.create(httpServletRequest.getRequestURI()))
@@ -93,8 +111,8 @@ public class PlanController {
 
         return ResponseEntity.ok(PlanDetailResponse.builder()
             .memberId(planManager.getMemberId(user, plan))
-            .shared(planManager.getSharedPlanInfo(plan))
-            .personal(planManager.getPersonalPlanInfo(user, plan))
+            .sharedVO(planManager.getSharedPlanInfo(plan))
+            .personalVO(planManager.getPersonalPlanInfo(user, plan))
             .dates(LocalDateUtils.getLocalDates(plan.getStartDate(), plan.getEndDate()))
             .build());
     }
@@ -147,7 +165,7 @@ public class PlanController {
         private final List<MemberResponse> members;
 
         @Builder
-        public PlanMemberResponse(String inviteCode, List<MemberResponse> members) {
+        PlanMemberResponse(String inviteCode, List<MemberResponse> members) {
             this.inviteCode = inviteCode;
             this.members = members;
         }
@@ -165,9 +183,8 @@ public class PlanController {
         @ApiModelProperty(value = "이미지 url")
         private final String profileImage;
 
-
         @Builder
-        private MemberResponse(Long memberId, String nickname,
+        MemberResponse(Long memberId, String nickname,
             Authority authority, String profileImage) {
             this.memberId = memberId;
             this.nickname = nickname;
@@ -178,7 +195,7 @@ public class PlanController {
 
     @Getter
     @ApiModel
-    public static class PlanDetailResponse {
+    private static class PlanDetailResponse {
 
         @ApiModelProperty(value = "여행 멤버 id")
         private final Long memberId;
@@ -192,19 +209,20 @@ public class PlanController {
         private final List<String> dates;
 
         @Builder
-        public PlanDetailResponse(
-            Long memberId, AmountItem shared,
-            AmountItem personal, List<LocalDate> dates) {
+        PlanDetailResponse(
+            Long memberId,
+            AmountItemVO sharedVO,
+            AmountItemVO personalVO,
+            List<LocalDate> dates) {
             this.memberId = memberId;
-            this.shared = shared;
-            this.personal = personal;
+            this.shared = AmountItem.of(sharedVO);
+            this.personal = AmountItem.of(personalVO);
             this.dates = dates.stream().map(LocalDate::toString).collect(Collectors.toList());
         }
 
-
         @Getter
         @ApiModel
-        public static class AmountItem {
+        private static class AmountItem {
 
             @ApiModelProperty(value = "여행 전체 목표 금액")
             private final Long purposeAmount;
@@ -214,14 +232,11 @@ public class PlanController {
             private final Long paymentAmount;
             @ApiModelProperty(value = "사용 가능한 예산")
             private final Long remainAmount;
-
-
             @ApiModelProperty(value = "예산 id")
             private final Long budgetId;
 
-
             @Builder
-            public AmountItem(Long purposeAmount, Double suggestAmount, Long paymentAmount,
+            AmountItem(Long purposeAmount, Double suggestAmount, Long paymentAmount,
                 Long budgetId) {
                 this.purposeAmount = purposeAmount;
                 this.suggestAmount = suggestAmount;
@@ -229,13 +244,22 @@ public class PlanController {
                 this.budgetId = budgetId;
                 this.remainAmount = purposeAmount - paymentAmount;
             }
+
+            static AmountItem of(AmountItemVO vo) {
+                return AmountItem.builder()
+                    .purposeAmount(vo.getPurposeAmount())
+                    .suggestAmount(vo.getSuggestAmount())
+                    .paymentAmount(vo.getPaymentAmount())
+                    .budgetId(vo.getBudgetId())
+                    .build();
+            }
         }
     }
 
 
     @Getter
     @ApiModel
-    public static class PlanResponse {
+    private static class PlanResponse {
 
         private final Long planId;
         @ApiModelProperty(value = "budgetKey", reference = "-1: 예산 미지정 (함께하는 여행: 공용 budget_id, 혼자하는여행: 개인 budget_id")
@@ -249,8 +273,6 @@ public class PlanController {
         @ApiModelProperty(value = "종료 일자")
         private final LocalDate endDate;
 
-        @ApiModelProperty(value = "D-DAY")
-        private final String dayCount;
         @ApiModelProperty(value = "목표 예산 (개인 여행 및 목표금액 미설정시 -1)")
         private final Long purposeAmount; // 금액 미입력시 -1
 
@@ -262,15 +284,17 @@ public class PlanController {
         @ApiModelProperty(value = "여행 공용 여부 Y, N")
         private final YnFlag isPublic;
 
-
         @ApiModelProperty(value = "여행중인 여부")
         private final YnFlag isDoing;
 
         @ApiModelProperty(value = "방 초대 해시코드")
         private final String inviteCode;
 
+        @ApiModelProperty(value = "D-DAY")
+        private final String dayCount;
+
         @Builder
-        public PlanResponse(
+        PlanResponse(
             Long planId,
             Long budgetId,
             String name,
@@ -287,13 +311,14 @@ public class PlanController {
             this.name = name;
             this.startDate = startDate;
             this.endDate = endDate;
-            this.dayCount = calculateDay(startDate);
             this.purposeAmount = purposeAmount;
             this.usedAmount = usedAmount;
             this.userCount = userCount;
             this.isPublic = isPublic;
             this.isDoing = isDoing;
             this.inviteCode = inviteCode;
+
+            this.dayCount = calculateDay(startDate);
         }
 
         private String calculateDay(LocalDate startDate) {
@@ -312,9 +337,7 @@ public class PlanController {
             }
             return dDayBuilder.toString();
         }
-
     }
-
 
     @Getter
     @ToString
@@ -336,7 +359,7 @@ public class PlanController {
         private final YnFlag isPublic;
 
         @JsonCreator
-        public CreatePlanRequest(
+        CreatePlanRequest(
             @JsonProperty(value = "name", defaultValue = "여행을 떠나요") String name,
             @JsonProperty(value = "start_date", required = true) LocalDate startDate,
             @JsonProperty(value = "end_date", required = true) LocalDate endDate,
@@ -357,9 +380,8 @@ public class PlanController {
         private final Long planId;
 
         @Builder
-        private CreatePlanResponse(Long planId) {
+        CreatePlanResponse(Long planId) {
             this.planId = planId;
         }
     }
-
 }

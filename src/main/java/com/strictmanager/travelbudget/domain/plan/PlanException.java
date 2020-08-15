@@ -14,8 +14,7 @@ public class PlanException extends RuntimeException {
         INVALID_DATE("시작일은 종료일 이후가 될 수 없어요"),
         CAN_NOT_FIND_PLAN("해당 여행을 찾을 수 없어요");
 
-
-        private String msg;
+        private final String msg;
 
         PlanMessage(String msg) {
             this.msg = msg;
