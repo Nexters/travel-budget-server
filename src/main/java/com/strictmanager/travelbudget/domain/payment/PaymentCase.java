@@ -80,6 +80,7 @@ public class PaymentCase extends BaseAuditingEntity {
     private User updateUser;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition="ENUM('Y','N')", nullable = false)
     private YnFlag isReady;
 
     public PaymentCase changePrice(Long price) {

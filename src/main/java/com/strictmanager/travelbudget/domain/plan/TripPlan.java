@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -46,9 +47,11 @@ public class TripPlan extends BaseAuditingEntity {
     private Long updateUserId;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition="ENUM('Y','N')", nullable = false)
     private YnFlag isPublic;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition="ENUM('Y','N')", nullable = false)
     private YnFlag isDelete;
 
     @OneToOne(cascade = CascadeType.DETACH)

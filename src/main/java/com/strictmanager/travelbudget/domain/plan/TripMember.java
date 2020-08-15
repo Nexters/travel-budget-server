@@ -5,6 +5,7 @@ import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.user.User;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -33,6 +34,7 @@ public class TripMember extends BaseAuditingEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition="ENUM('OWNER', 'MEMBER')", nullable = false)
     private Authority authority;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
