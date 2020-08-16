@@ -8,6 +8,8 @@ import com.strictmanager.travelbudget.domain.member.MemberException.MemberMessag
 import com.strictmanager.travelbudget.domain.member.MemberService;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
 import com.strictmanager.travelbudget.domain.payment.PaymentCaseService;
+import com.strictmanager.travelbudget.domain.plan.PlanException;
+import com.strictmanager.travelbudget.domain.plan.PlanException.PlanMessage;
 import com.strictmanager.travelbudget.domain.plan.PlanService;
 import com.strictmanager.travelbudget.domain.plan.TripMember;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
@@ -199,5 +201,25 @@ public class PlanManager {
             .build());
 
         return member.getId();
+    }
+
+    @Transactional
+    public void deletePlan(User user, Long planId) {
+        TripPlan plan = planService.getPlan(planId);
+
+        if (plan.getIsDelete().equals(YnFlag.Y)) {
+            throw new PlanException(PlanMessage.ALREADY_DELETE_PLAN);
+        }
+
+        if (!plan.getCreateUserId().equals(user.getId())) {
+            throw new PlanException(PlanMessage.NO_AUTHORITY);
+        }
+
+        if (plan.getIsPublic().equals(YnFlag.N)) {
+            if (plan.getTripMembers().size() > 1) {
+                throw new PlanException(PlanMessage.DELETE_MUST_BE_ALONE);
+            }
+        }
+        planService.savePlan(plan.deletePlan());
     }
 }
