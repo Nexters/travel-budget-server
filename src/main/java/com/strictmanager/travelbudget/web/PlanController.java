@@ -11,7 +11,6 @@ import com.strictmanager.travelbudget.application.plan.MemberVO;
 import com.strictmanager.travelbudget.application.plan.PlanCreateVO;
 import com.strictmanager.travelbudget.application.plan.PlanManager;
 import com.strictmanager.travelbudget.domain.YnFlag;
-import com.strictmanager.travelbudget.domain.plan.PlanService;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import com.strictmanager.travelbudget.domain.user.User;
@@ -50,7 +49,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class PlanController {
 
     private final PlanManager planManager;
-    private final PlanService planService;
 
     @GetMapping("/plans")
     @ApiOperation(value = "여행 목록 조회")
@@ -119,6 +117,16 @@ public class PlanController {
             .build());
     }
 
+    @DeleteMapping("/plans/{id}")
+    @ApiOperation(value = "여행 삭제")
+    public ResponseEntity<?> deletePlanDetail(@AuthenticationPrincipal User user,
+        @PathVariable(value = "id") Long planId) {
+
+        planManager.deletePlan(user, planId);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/plans/{id}/members")
     @ApiOperation(value = "여행 친구목록 조회")
     @Transactional(readOnly = true)
@@ -126,7 +134,9 @@ public class PlanController {
         @AuthenticationPrincipal User user,
         @PathVariable(value = "id") Long planId) {
 
-        List<MemberResponse> planMembers = planManager.getMembers(planId).stream()
+        final TripPlan plan = planManager.getPlan(planId);
+
+        List<MemberResponse> planMembers = plan.getTripMembers().stream()
             .map(member -> MemberResponse.builder()
                 .authority(member.getAuthority())
                 .memberId(member.getId())
@@ -134,8 +144,8 @@ public class PlanController {
                 .profileImage(member.getUser().getProfileImage()).build()
             ).collect(Collectors.toList());
 
-        final TripPlan plan = planService.getPlan(planId);
-        Authority myAuthority = planManager.getMember(user, plan).getAuthority();
+
+        final Authority myAuthority = planManager.getMember(user, plan).getAuthority();
 
         return ResponseEntity.ok(new PlanMemberResponse(
             InviteCodeUtils.generatePlanInviteCode(plan.getId(), plan.getCreateUserId()),

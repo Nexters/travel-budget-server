@@ -25,10 +25,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Table(name = "trip_plan")
 @DynamicInsert
+@DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Getter
@@ -47,11 +49,11 @@ public class TripPlan extends BaseAuditingEntity {
     private Long updateUserId;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition="ENUM('Y','N')", nullable = false)
+    @Column(columnDefinition = "ENUM('Y','N')", nullable = false)
     private YnFlag isPublic;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition="ENUM('Y','N')", nullable = false)
+    @Column(columnDefinition = "ENUM('Y','N')", nullable = false)
     private YnFlag isDelete = YnFlag.N;
 
     @OneToOne(cascade = CascadeType.DETACH)
@@ -62,7 +64,8 @@ public class TripPlan extends BaseAuditingEntity {
     private List<TripMember> tripMembers = new ArrayList<>();
 
     @Builder
-    public TripPlan(String name, LocalDate startDate, LocalDate endDate, Long userId, Budget budget, YnFlag isPublic) {
+    public TripPlan(String name, LocalDate startDate, LocalDate endDate, Long userId, Budget budget,
+        YnFlag isPublic) {
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -70,9 +73,14 @@ public class TripPlan extends BaseAuditingEntity {
         this.updateUserId = userId;
         this.isPublic = isPublic;
 
-        if(isPublic.equals(YnFlag.Y)) {
+        if (isPublic.equals(YnFlag.Y)) {
             this.budget = Objects.requireNonNull(budget);
         }
+    }
+
+    public TripPlan deletePlan() {
+        this.isDelete = YnFlag.Y;
+        return this;
     }
 
 }
