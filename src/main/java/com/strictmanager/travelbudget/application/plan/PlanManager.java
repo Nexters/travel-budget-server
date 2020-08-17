@@ -118,10 +118,6 @@ public class PlanManager {
         return planService.getPlan(planId);
     }
 
-    public List<TripMember> getMembers(Long planId) {
-        return planService.getPlan(planId).getTripMembers();
-    }
-
     public TripMember getMember(User user, TripPlan plan) {
         return memberService.getMember(user, plan);
     }
@@ -206,10 +202,6 @@ public class PlanManager {
     @Transactional
     public void deletePlan(User user, Long planId) {
         TripPlan plan = planService.getPlan(planId);
-
-        if (plan.getIsDelete().equals(YnFlag.Y)) {
-            throw new PlanException(PlanMessage.ALREADY_DELETE_PLAN);
-        }
 
         if (!plan.getCreateUserId().equals(user.getId())) {
             throw new PlanException(PlanMessage.NO_AUTHORITY);

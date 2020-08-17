@@ -134,7 +134,9 @@ public class PlanController {
         @AuthenticationPrincipal User user,
         @PathVariable(value = "id") Long planId) {
 
-        List<MemberResponse> planMembers = planManager.getMembers(planId).stream()
+        final TripPlan plan = planManager.getPlan(planId);
+
+        List<MemberResponse> planMembers = plan.getTripMembers().stream()
             .map(member -> MemberResponse.builder()
                 .authority(member.getAuthority())
                 .memberId(member.getId())
@@ -142,7 +144,7 @@ public class PlanController {
                 .profileImage(member.getUser().getProfileImage()).build()
             ).collect(Collectors.toList());
 
-        final TripPlan plan = planManager.getPlan(planId);
+
         final Authority myAuthority = planManager.getMember(user, plan).getAuthority();
 
         return ResponseEntity.ok(new PlanMemberResponse(

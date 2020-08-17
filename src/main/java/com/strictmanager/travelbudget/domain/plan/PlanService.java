@@ -1,6 +1,7 @@
 package com.strictmanager.travelbudget.domain.plan;
 
 import com.strictmanager.travelbudget.domain.YnFlag;
+import com.strictmanager.travelbudget.domain.plan.PlanException.PlanMessage;
 import com.strictmanager.travelbudget.domain.user.User;
 import com.strictmanager.travelbudget.infra.persistence.jpa.TripMemberRepository;
 import com.strictmanager.travelbudget.infra.persistence.jpa.TripPlanRepository;
@@ -44,7 +45,13 @@ public class PlanService {
     }
 
     public TripPlan getPlan(Long planId) {
-         return tripPlanRepository.findById(planId).orElseThrow();
+        TripPlan plan = tripPlanRepository.findById(planId).orElseThrow();
+
+        if (plan.getIsDelete().equals(YnFlag.Y)) {
+            throw new PlanException(PlanMessage.DELETE_PLAN);
+        }
+
+        return plan;
     }
 
     public TripPlan savePlan(TripPlan tripPlan) {
