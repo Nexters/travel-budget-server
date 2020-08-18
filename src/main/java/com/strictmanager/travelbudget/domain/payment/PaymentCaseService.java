@@ -3,7 +3,11 @@ package com.strictmanager.travelbudget.domain.payment;
 import com.strictmanager.travelbudget.application.payment.PaymentVO;
 import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.payment.PaymentException.PaymentMessage;
+import com.strictmanager.travelbudget.utils.LocalDateTimeUtils;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.infra.persistence.jpa.PaymentCaseRepository;
@@ -11,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentCaseService {
@@ -46,8 +51,9 @@ public class PaymentCaseService {
     }
 
     public List<PaymentCase> getPaymentCaseByDate(Budget budget, LocalDate paymentDate) {
+        log.debug("StartDate: {}, EndDate: {}", LocalDateTimeUtils.atUtcStartOfDay(paymentDate), LocalDateTimeUtils.atUtcMaxOfDay(paymentDate));
         return paymentCaseRepository.findByBudgetAndPaymentDtBetweenOrderByPaymentDtDesc(
-            budget, paymentDate.atStartOfDay(), paymentDate.atTime(LocalTime.MAX)
+            budget, LocalDateTimeUtils.atUtcStartOfDay(paymentDate), LocalDateTimeUtils.atUtcMaxOfDay(paymentDate)
         );
     }
 
