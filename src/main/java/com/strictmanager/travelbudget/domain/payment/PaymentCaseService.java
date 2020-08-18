@@ -51,9 +51,8 @@ public class PaymentCaseService {
     }
 
     public List<PaymentCase> getPaymentCaseByDate(Budget budget, LocalDate paymentDate) {
-        log.debug("StartDate: {}, EndDate: {}", LocalDateTimeUtils.atUtcStartOfDay(paymentDate), LocalDateTimeUtils.atUtcMaxOfDay(paymentDate));
         return paymentCaseRepository.findByBudgetAndPaymentDtBetweenOrderByPaymentDtDesc(
-            budget, LocalDateTimeUtils.atUtcStartOfDay(paymentDate), LocalDateTimeUtils.atUtcMaxOfDay(paymentDate)
+            budget, LocalDateTimeUtils.atStartOfDay(paymentDate), LocalDateTimeUtils.atMaxOfDay(paymentDate)
         );
     }
 
