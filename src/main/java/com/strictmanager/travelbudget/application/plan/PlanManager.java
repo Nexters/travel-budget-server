@@ -25,6 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -162,13 +163,17 @@ public class PlanManager {
             throw new MemberException(MemberMessage.CAN_NOT_DELETE_OWNER);
         }
 
-        if (!(requestMember.getAuthority().equals(Authority.MEMBER) &&
-            vo.getMemberId().equals(requestMember.getId()))
+        if (requestMember.getAuthority().equals(Authority.MEMBER) &&
+            ObjectUtils.notEqual(vo.getMemberId(), requestMember.getId())
         ) {
             throw new MemberException(MemberMessage.NOT_HAVE_PERMISSION);
         }
 
+
+//        budgetService.getPersonalBudget()
         memberService.deleteMember(deleteTargetMember);
+
+
     }
 
     @Transactional
