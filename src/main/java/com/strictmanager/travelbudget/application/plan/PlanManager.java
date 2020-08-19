@@ -236,12 +236,12 @@ public class PlanManager {
             .personal(
                 Optional.ofNullable(member.getBudget())
                     .map(convertBudgetToAmountObj)
-                    .orElseGet(null)
+                    .orElse(null)
             )
             .shared(
                 Optional.ofNullable(plan.getBudget())
                     .map(convertBudgetToAmountObj)
-                    .orElseGet(null)
+                    .orElse(null)
             )
             .build();
     }
