@@ -12,7 +12,7 @@ public class PlanProfileUpdateVO {
     private final User user;
     private final Long planId;
     private final String name;
-    private final Long publicAmount;
+    private final Long sharedAmount;
     private final Long personalAmount;
 
     @Builder
@@ -20,12 +20,12 @@ public class PlanProfileUpdateVO {
         User user,
         Long planId,
         String name,
-        Long publicAmount,
+        Long sharedAmount,
         Long personalAmount) {
         this.user = requireNonNull(user);
         this.planId = requireNonNull(planId);
         this.name = requireNonNull(name);
-        this.publicAmount = publicAmount;
+        this.sharedAmount = sharedAmount;
         this.personalAmount = requireNonNull(personalAmount);
     }
 }

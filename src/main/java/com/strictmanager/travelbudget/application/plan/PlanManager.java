@@ -253,7 +253,7 @@ public class PlanManager {
         TripPlan plan = planService.getPlan(vo.getPlanId());
         TripMember member = memberService.getMember(vo.getUser(), plan);
 
-        if (plan.getIsPublic().equals(YnFlag.N) && Objects.nonNull(vo.getPublicAmount())) {
+        if (plan.getIsPublic().equals(YnFlag.N) && Objects.nonNull(vo.getSharedAmount())) {
             throw new PlanException(PlanMessage.IS_PERSONAL_PLAN);
         }
 
@@ -262,7 +262,7 @@ public class PlanManager {
                 throw new MemberException(MemberMessage.NOT_HAVE_PERMISSION);
             }
 
-            if (ObjectUtils.notEqual(plan.getBudget().getAmount(), vo.getPublicAmount())) {
+            if (ObjectUtils.notEqual(plan.getBudget().getAmount(), vo.getSharedAmount())) {
                 throw new MemberException(MemberMessage.NOT_HAVE_PERMISSION);
             }
         }
@@ -270,7 +270,7 @@ public class PlanManager {
         plan = plan.updateName(vo.getName(), vo.getUser().getId());
 
         if (plan.getIsPublic().equals(YnFlag.Y)) {
-            budgetService.saveBudget(plan.getBudget().changeAmount(vo.getPublicAmount()));
+            budgetService.saveBudget(plan.getBudget().changeAmount(vo.getSharedAmount()));
         }
 
         planService.savePlan(plan);

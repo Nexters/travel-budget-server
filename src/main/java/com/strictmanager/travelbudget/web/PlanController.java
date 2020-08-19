@@ -208,7 +208,7 @@ public class PlanController {
             .user(user)
             .planId(planId)
             .name(param.name)
-            .publicAmount(param.publicAmount)
+            .sharedAmount(param.sharedAmount)
             .personalAmount(param.personalAmount)
             .build()
         );
@@ -222,18 +222,18 @@ public class PlanController {
         @ApiModelProperty(name = "여행 명")
         private final String name;
         @ApiModelProperty(name = "공용 목표 예산 (혼자가는 여행일때 x)")
-        private final Long publicAmount;
+        private final Long sharedAmount;
         @ApiModelProperty(name = "개인 목표 예산 (-1, null일때 Exception)")
         private final Long personalAmount;
 
         @JsonCreator
         PlanProfileUpdateRequest(
             @JsonProperty(value = "name", required = true) String name,
-            @JsonProperty(value = "public_amount", required = false) Long publicAmount,
+            @JsonProperty(value = "public_amount", required = false) Long sharedAmount,
             @JsonProperty(value = "personal_amount", required = true) Long personalAmount
         ) {
             this.name = name;
-            this.publicAmount = publicAmount;
+            this.sharedAmount = sharedAmount;
             this.personalAmount = personalAmount;
         }
 
