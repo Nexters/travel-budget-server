@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
+import com.strictmanager.travelbudget.domain.plan.TripPlan;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -12,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -19,6 +21,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.lang.Nullable;
 
 @Entity
 @Table(name = "budget")
@@ -48,6 +51,10 @@ public class Budget extends BaseAuditingEntity {
     private Long amount;
 
     private Long paymentAmount;
+
+    @Nullable
+    @OneToOne(mappedBy = "budget")
+    private TripPlan plan;
 
 
     @OneToMany(mappedBy = "budget", cascade = CascadeType.REMOVE)
