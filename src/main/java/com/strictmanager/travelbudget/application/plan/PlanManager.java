@@ -169,11 +169,7 @@ public class PlanManager {
             throw new MemberException(MemberMessage.NOT_HAVE_PERMISSION);
         }
 
-
-//        budgetService.getPersonalBudget()
         memberService.deleteMember(deleteTargetMember);
-
-
     }
 
     @Transactional
@@ -251,5 +247,45 @@ public class PlanManager {
                     .orElse(null)
             )
             .build();
+    }
+
+    public void updatePlanProfile(PlanProfileUpdateVO vo) {
+        TripPlan plan = planService.getPlan(vo.getPlanId());
+        TripMember member = memberService.getMember(vo.getUser(), plan);
+
+        if (plan.getIsPublic().equals(YnFlag.N) && Objects.nonNull(vo.getPublicAmount())) {
+            throw new PlanException(PlanMessage.IS_PERSONAL_PLAN);
+        }
+
+        if (member.getAuthority().equals(Authority.MEMBER)) {
+            if (ObjectUtils.notEqual(plan.getName(), vo.getName())) {
+                throw new MemberException(MemberMessage.NOT_HAVE_PERMISSION);
+            }
+
+            if (ObjectUtils.notEqual(plan.getBudget().getAmount(), vo.getPublicAmount())) {
+                throw new MemberException(MemberMessage.NOT_HAVE_PERMISSION);
+            }
+        }
+
+        plan = plan.updateName(vo.getName(), vo.getUser().getId());
+
+        if (plan.getIsPublic().equals(YnFlag.Y)) {
+            budgetService.saveBudget(plan.getBudget().changeAmount(vo.getPublicAmount()));
+        }
+
+        planService.savePlan(plan);
+
+        if (member.getBudget() == null) {
+
+            Budget budget = budgetService.saveBudget(Budget.builder()
+                .amount(vo.getPersonalAmount())
+                .createUserId(vo.getUser().getId())
+                .paymentAmount(INIT_AMOUNT)
+                .build());
+
+            memberService.saveMember(member.updateBudget(budget));
+        } else {
+            budgetService.saveBudget(member.getBudget().changeAmount(vo.getPersonalAmount()));
+        }
     }
 }
