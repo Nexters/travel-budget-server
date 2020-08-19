@@ -6,6 +6,7 @@ import com.strictmanager.travelbudget.domain.BaseAuditingEntity;
 import com.strictmanager.travelbudget.domain.payment.PaymentCase;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -46,7 +47,8 @@ public class Budget extends BaseAuditingEntity {
 
     private Long paymentAmount;
 
-    @OneToMany(mappedBy = "budget")
+
+    @OneToMany(mappedBy = "budget", cascade = CascadeType.REMOVE)
     private List<PaymentCase> paymentCases = new ArrayList<>();
 
     public Budget changeAmount(Long amount) {
