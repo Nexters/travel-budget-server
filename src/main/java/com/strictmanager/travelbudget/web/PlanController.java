@@ -204,6 +204,8 @@ public class PlanController {
         private final String name;
         private final LocalDate startDate;
         private final LocalDate endDate;
+
+        @JsonInclude(Include.NON_NULL)
         private final AmountObj shared;
         private final AmountObj personal;
         private final Authority authority;
