@@ -1,5 +1,6 @@
 package com.strictmanager.travelbudget.application.plan;
 
+import com.strictmanager.travelbudget.application.plan.PlanProfileVO.AmountVO;
 import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.budget.Budget;
 import com.strictmanager.travelbudget.domain.budget.BudgetService;
@@ -213,5 +214,35 @@ public class PlanManager {
             }
         }
         planService.savePlan(plan.deletePlan());
+    }
+
+    public PlanProfileVO getPlanProfile(User user, Long planId) {
+        TripPlan plan = planService.getPlan(planId);
+
+        TripMember member = memberService.getMember(user, plan);
+
+        Function<Budget, AmountVO> convertBudgetToAmountObj = (budget ->
+            AmountVO.builder()
+                .budgetId(budget.getId())
+                .amount(budget.getAmount())
+                .build()
+        );
+
+        return PlanProfileVO.builder()
+            .name(plan.getName())
+            .startDate(plan.getStartDate())
+            .endDate(plan.getEndDate())
+            .authority(member.getAuthority())
+            .personal(
+                Optional.ofNullable(member.getBudget())
+                    .map(convertBudgetToAmountObj)
+                    .orElseGet(null)
+            )
+            .shared(
+                Optional.ofNullable(plan.getBudget())
+                    .map(convertBudgetToAmountObj)
+                    .orElseGet(null)
+            )
+            .build();
     }
 }

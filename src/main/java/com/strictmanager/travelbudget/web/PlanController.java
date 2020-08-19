@@ -1,6 +1,8 @@
 package com.strictmanager.travelbudget.web;
 
 
+import static java.util.Objects.requireNonNull;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -10,6 +12,8 @@ import com.strictmanager.travelbudget.application.plan.AmountItemVO;
 import com.strictmanager.travelbudget.application.plan.MemberVO;
 import com.strictmanager.travelbudget.application.plan.PlanCreateVO;
 import com.strictmanager.travelbudget.application.plan.PlanManager;
+import com.strictmanager.travelbudget.application.plan.PlanProfileVO;
+import com.strictmanager.travelbudget.application.plan.PlanProfileVO.AmountVO;
 import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.plan.TripMember.Authority;
 import com.strictmanager.travelbudget.domain.plan.TripPlan;
@@ -42,6 +46,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+
+
 
 @Slf4j
 @ApiController
@@ -127,6 +133,28 @@ public class PlanController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/plans/{id}/profile")
+    @ApiOperation(value = "여행 프로필 정보 조회")
+    @Transactional(readOnly = true)
+    public ResponseEntity<PlanProfileResponse> getPlanProfile(
+        @AuthenticationPrincipal User user,
+        @PathVariable(value = "id") Long planId) {
+
+        PlanProfileVO vo = planManager.getPlanProfile(user, planId);
+
+        return ResponseEntity.ok(
+            PlanProfileResponse.builder()
+                .name(vo.getName())
+                .startDate(vo.getStartDate())
+                .endDate(vo.getEndDate())
+                .authority(vo.getAuthority())
+                .sharedVO(vo.getShared())
+                .personalVO(vo.getPersonal())
+                .build()
+        );
+    }
+
+
     @GetMapping("/plans/{id}/members")
     @ApiOperation(value = "여행 친구목록 조회")
     @Transactional(readOnly = true)
@@ -143,7 +171,6 @@ public class PlanController {
                 .nickname(member.getUser().getNickname())
                 .profileImage(member.getUser().getProfileImage()).build()
             ).collect(Collectors.toList());
-
 
         final Authority myAuthority = planManager.getMember(user, plan).getAuthority();
 
@@ -168,6 +195,60 @@ public class PlanController {
             .build());
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Getter
+    @ApiModel
+    private static class PlanProfileResponse {
+
+        private final String name;
+        private final LocalDate startDate;
+        private final LocalDate endDate;
+        private final AmountObj shared;
+        private final AmountObj personal;
+        private final Authority authority;
+
+
+        @Builder
+        PlanProfileResponse(
+            String name,
+            LocalDate startDate,
+            LocalDate endDate,
+            AmountVO sharedVO, AmountVO personalVO,
+            Authority authority) {
+            this.name = requireNonNull(name);
+            this.startDate = requireNonNull(startDate);
+            this.endDate = requireNonNull(endDate);
+            this.shared = AmountObj.of(sharedVO);
+            this.personal = AmountObj.of(personalVO);
+
+            this.authority = requireNonNull(authority);
+        }
+
+
+        @Getter
+        @ApiModel
+        private static class AmountObj {
+
+            private final Long budgetId;
+            private final Long amount;
+
+            @Builder
+            AmountObj(Long budgetId, Long amount) {
+                this.budgetId = budgetId;
+                this.amount = amount;
+            }
+
+            static AmountObj of(AmountVO vo) {
+                if (Objects.isNull(vo)) {
+                    return null;
+                }
+                return AmountObj.builder()
+                    .amount(vo.getAmount())
+                    .budgetId(vo.getBudgetId())
+                    .build();
+            }
+        }
     }
 
     @Getter
@@ -284,7 +365,6 @@ public class PlanController {
             }
         }
     }
-
 
     @Getter
     @ApiModel
@@ -414,3 +494,4 @@ public class PlanController {
         }
     }
 }
+
