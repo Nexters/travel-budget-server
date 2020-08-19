@@ -24,6 +24,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -76,6 +77,14 @@ public class TripPlan extends BaseAuditingEntity {
         if (isPublic.equals(YnFlag.Y)) {
             this.budget = Objects.requireNonNull(budget);
         }
+    }
+
+    public TripPlan updateName(String name, Long userId) {
+        if (ObjectUtils.notEqual(this.getName(), name)) {
+            this.name = name;
+            this.updateUserId = userId;
+        }
+        return this;
     }
 
     public TripPlan deletePlan() {

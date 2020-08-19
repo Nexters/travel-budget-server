@@ -12,6 +12,7 @@ import com.strictmanager.travelbudget.application.plan.AmountItemVO;
 import com.strictmanager.travelbudget.application.plan.MemberVO;
 import com.strictmanager.travelbudget.application.plan.PlanCreateVO;
 import com.strictmanager.travelbudget.application.plan.PlanManager;
+import com.strictmanager.travelbudget.application.plan.PlanProfileUpdateVO;
 import com.strictmanager.travelbudget.application.plan.PlanProfileVO;
 import com.strictmanager.travelbudget.application.plan.PlanProfileVO.AmountVO;
 import com.strictmanager.travelbudget.domain.YnFlag;
@@ -44,9 +45,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 
 @Slf4j
@@ -133,28 +134,6 @@ public class PlanController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/plans/{id}/profile")
-    @ApiOperation(value = "여행 프로필 정보 조회")
-    @Transactional(readOnly = true)
-    public ResponseEntity<PlanProfileResponse> getPlanProfile(
-        @AuthenticationPrincipal User user,
-        @PathVariable(value = "id") Long planId) {
-
-        PlanProfileVO vo = planManager.getPlanProfile(user, planId);
-
-        return ResponseEntity.ok(
-            PlanProfileResponse.builder()
-                .name(vo.getName())
-                .startDate(vo.getStartDate())
-                .endDate(vo.getEndDate())
-                .authority(vo.getAuthority())
-                .sharedVO(vo.getShared())
-                .personalVO(vo.getPersonal())
-                .build()
-        );
-    }
-
-
     @GetMapping("/plans/{id}/members")
     @ApiOperation(value = "여행 친구목록 조회")
     @Transactional(readOnly = true)
@@ -196,6 +175,70 @@ public class PlanController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/plans/{id}/profile")
+    @ApiOperation(value = "여행 프로필 정보 조회")
+    @Transactional(readOnly = true)
+    public ResponseEntity<PlanProfileResponse> getPlanProfile(
+        @AuthenticationPrincipal User user,
+        @PathVariable(value = "id") Long planId) {
+
+        PlanProfileVO vo = planManager.getPlanProfile(user, planId);
+
+        return ResponseEntity.ok(
+            PlanProfileResponse.builder()
+                .name(vo.getName())
+                .startDate(vo.getStartDate())
+                .endDate(vo.getEndDate())
+                .authority(vo.getAuthority())
+                .sharedVO(vo.getShared())
+                .personalVO(vo.getPersonal())
+                .build()
+        );
+    }
+
+    @PutMapping("/plans/{id}/profile")
+    @ApiOperation(value = "여행 프로필 정보 수정")
+    public ResponseEntity<?> updatePlanProfile(
+        @AuthenticationPrincipal User user,
+        @PathVariable(value = "id") Long planId,
+        @RequestBody PlanProfileUpdateRequest param) {
+
+        planManager.updatePlanProfile(PlanProfileUpdateVO.builder()
+            .user(user)
+            .planId(planId)
+            .name(param.name)
+            .publicAmount(param.publicAmount)
+            .personalAmount(param.personalAmount)
+            .build()
+        );
+        return ResponseEntity.ok(new CreatePlanResponse(planId));
+    }
+
+    @Getter
+    @ApiModel
+    private static class PlanProfileUpdateRequest {
+
+        @ApiModelProperty(name = "여행 명")
+        private final String name;
+        @ApiModelProperty(name = "공용 목표 예산 (혼자가는 여행일때 x)")
+        private final Long publicAmount;
+        @ApiModelProperty(name = "개인 목표 예산 (-1, null일때 Exception)")
+        private final Long personalAmount;
+
+        @JsonCreator
+        PlanProfileUpdateRequest(
+            @JsonProperty(value = "name", required = true) String name,
+            @JsonProperty(value = "public_amount", required = false) Long publicAmount,
+            @JsonProperty(value = "personal_amount", required = true) Long personalAmount
+        ) {
+            this.name = name;
+            this.publicAmount = publicAmount;
+            this.personalAmount = personalAmount;
+        }
+
+    }
+
 
     @Getter
     @ApiModel
