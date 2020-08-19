@@ -229,7 +229,7 @@ public class PlanController {
         @JsonCreator
         PlanProfileUpdateRequest(
             @JsonProperty(value = "name", required = true) String name,
-            @JsonProperty(value = "public_amount", required = false) Long sharedAmount,
+            @JsonProperty(value = "shared_amount", required = false) Long sharedAmount,
             @JsonProperty(value = "personal_amount", required = true) Long personalAmount
         ) {
             this.name = name;
