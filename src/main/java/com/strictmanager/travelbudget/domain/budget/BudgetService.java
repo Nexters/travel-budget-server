@@ -31,10 +31,7 @@ public class BudgetService {
     public Budget updateBudgetPaymentAmount(Long userId, Long budgetId, Long paymentAmount) {
         final Budget budget = budgetRepository.findById(budgetId)
             .orElseThrow(() -> new BudgetException(BudgetMessage.CAN_NOT_FIND_BUDGET));
-        if (!budget.getCreateUserId().equals(userId)) {
-            throw new BudgetException(BudgetMessage.EDIT_ONLY_MINE);
-        }
-
+        
         return budgetRepository.save(budget.changePaymentAmount(paymentAmount));
     }
 
