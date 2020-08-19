@@ -156,16 +156,18 @@ public class PlanManager {
             planService.getPlan(vo.getPlanId())
         );
 
-        if (requestMember == null) {
-            throw new MemberException(MemberMessage.CAN_NOT_FIND_MEMBER);
+        TripMember deleteTargetMember = memberService.getMember(vo.getMemberId());
+
+        if (deleteTargetMember.getAuthority().equals(Authority.OWNER)) {
+            throw new MemberException(MemberMessage.CAN_NOT_DELETE_OWNER);
         }
 
-        if (requestMember.getAuthority().equals(Authority.MEMBER) || Objects
-            .equals(vo.getMemberId(), requestMember.getId())) {
+        if (!(requestMember.getAuthority().equals(Authority.MEMBER) &&
+            vo.getMemberId().equals(requestMember.getId()))
+        ) {
             throw new MemberException(MemberMessage.NOT_HAVE_PERMISSION);
         }
 
-        TripMember deleteTargetMember = memberService.getMember(vo.getMemberId());
         memberService.deleteMember(deleteTargetMember);
     }
 
