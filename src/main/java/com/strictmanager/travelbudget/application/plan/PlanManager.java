@@ -149,7 +149,7 @@ public class PlanManager {
             .stream()
             .mapToLong(PaymentCase::getPrice).sum();
         final int planDayCnt = plan.getStartDate().until(plan.getEndDate()).getDays() + 1;
-        final double suggestAmount = (double) (budget.getAmount() - readyUsePrice) / planDayCnt;
+        final double suggestAmount = (double) ((budget.getAmount() - readyUsePrice) / planDayCnt);
 
         return suggestAmount > 0 ? suggestAmount : 0;
     }
