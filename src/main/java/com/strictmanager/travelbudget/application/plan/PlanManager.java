@@ -136,18 +136,22 @@ public class PlanManager {
     }
 
     private AmountItemVO createPlanInfo(TripPlan plan, Budget budget) {
-        long readyUsePrice = paymentCaseService.getPaymentCaseByReady(budget)
-            .stream()
-            .mapToLong(PaymentCase::getPrice).sum();
-        int planDayCnt = plan.getStartDate().until(plan.getEndDate()).getDays() + 1;
-
         return AmountItemVO.builder()
             .purposeAmount(budget.getAmount())
             .paymentAmount(budget.getPaymentAmount())
-            .suggestAmount(
-                (double) ((budget.getAmount() - readyUsePrice) / planDayCnt))
+            .suggestAmount(calculateSuggestAmount(budget, plan))
             .budgetId(budget.getId())
             .build();
+    }
+
+    private Double calculateSuggestAmount(Budget budget, TripPlan plan) {
+        final long readyUsePrice = paymentCaseService.getPaymentCaseByReady(budget)
+            .stream()
+            .mapToLong(PaymentCase::getPrice).sum();
+        final int planDayCnt = plan.getStartDate().until(plan.getEndDate()).getDays() + 1;
+        final double suggestAmount = (double) (budget.getAmount() - readyUsePrice) / planDayCnt;
+
+        return suggestAmount > 0 ? suggestAmount : 0;
     }
 
     @Transactional
