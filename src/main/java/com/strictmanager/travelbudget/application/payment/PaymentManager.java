@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -59,20 +60,37 @@ public class PaymentManager {
     @Transactional
     public Long updatePaymentCase(Long userId, Long paymentId, PaymentVO paymentVO) {
         final PaymentCase paymentCase = paymentCaseService.getPaymentCase(paymentId);
-        final Budget budget = paymentCase.getBudget();
+        final Budget originBudget = paymentCase.getBudget();
         final Long originPrice = paymentCase.getPrice();
         final Long updatedPrice = paymentVO.getPrice();
+
+        Budget budget;
+
+        final Long updatedBudgetPaymentAmount;
+        if (ObjectUtils.notEqual(originBudget.getId(), paymentVO.getBudgetId())) {
+            budgetService
+                .updateBudgetPaymentAmount(userId, originBudget.getId(),
+                    originBudget.getPaymentAmount() - originPrice);
+
+            budget = budgetService.getBudget(paymentVO.getBudgetId());
+
+            updatedBudgetPaymentAmount = budget.getPaymentAmount() + updatedPrice;
+        } else {
+            updatedBudgetPaymentAmount =
+                originBudget.getPaymentAmount() - originPrice + updatedPrice;
+
+            budget = originBudget;
+        }
 
         paymentCaseService.updatePaymentCase(
             userId,
             paymentId,
+            budget,
             paymentVO
         );
 
-        final Long updatedBudgetPaymentAmount =
-            budget.getPaymentAmount() - originPrice + updatedPrice;
         budgetService.updateBudgetPaymentAmount(
-            paymentVO.getUserId(), paymentVO.getBudgetId(), updatedBudgetPaymentAmount
+            paymentVO.getUserId(), budget.getId(), updatedBudgetPaymentAmount
         );
 
         return paymentId;
