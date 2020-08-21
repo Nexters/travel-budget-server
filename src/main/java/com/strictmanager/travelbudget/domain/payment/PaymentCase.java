@@ -108,4 +108,9 @@ public class PaymentCase extends BaseAuditingEntity {
         this.category = category;
         return this;
     }
+
+    public PaymentCase changeIsReady(YnFlag isReadyYn) {
+        isReady = isReadyYn;
+        return this;
+    }
 }

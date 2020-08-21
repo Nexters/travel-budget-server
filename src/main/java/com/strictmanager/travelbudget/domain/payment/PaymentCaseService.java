@@ -46,6 +46,7 @@ public class PaymentCaseService {
                 .changePaymentDt(paymentVO.getPaymentDt())
                 .changeCategory(paymentVO.getPaymentCaseCategory())
                 .changeBudget(budget)
+                .changeIsReady(paymentVO.getIsReady())
         );
     }
 
