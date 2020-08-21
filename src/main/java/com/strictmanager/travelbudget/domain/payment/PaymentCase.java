@@ -23,9 +23,11 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Table(name = "payment_case")
+@DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Getter
@@ -82,6 +84,11 @@ public class PaymentCase extends BaseAuditingEntity {
     @Column(columnDefinition="ENUM('Y','N')", nullable = false)
     private YnFlag isReady;
 
+    public PaymentCase changeBudget(Budget budget) {
+        this.budget = budget;
+        return this;
+    }
+
     public PaymentCase changePrice(Long price) {
         this.price = price;
         return this;
@@ -99,6 +106,11 @@ public class PaymentCase extends BaseAuditingEntity {
 
     public PaymentCase changeCategory(PaymentCaseCategory category) {
         this.category = category;
+        return this;
+    }
+
+    public PaymentCase changeIsReady(YnFlag isReadyYn) {
+        isReady = isReadyYn;
         return this;
     }
 }
