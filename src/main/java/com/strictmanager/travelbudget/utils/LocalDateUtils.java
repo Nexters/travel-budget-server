@@ -4,6 +4,7 @@ import com.strictmanager.travelbudget.domain.YnFlag;
 import com.strictmanager.travelbudget.domain.plan.PlanException;
 import com.strictmanager.travelbudget.domain.plan.PlanException.PlanMessage;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -15,10 +16,10 @@ public final class LocalDateUtils {
     public static List<LocalDate> getLocalDates(LocalDate startDate, LocalDate endDate) {
         List<LocalDate> dates = new ArrayList<>();
 
-        int datePeriod = startDate.until(endDate).getDays() + 1;
+        long betweenDate = ChronoUnit.DAYS.between(startDate, endDate);
 
         LocalDate tempDate = startDate;
-        for (int i = 0; i < datePeriod; i++) {
+        for (int i = 0; i < betweenDate; i++) {
             dates.add(tempDate);
             tempDate = tempDate.plusDays(1);
         }
