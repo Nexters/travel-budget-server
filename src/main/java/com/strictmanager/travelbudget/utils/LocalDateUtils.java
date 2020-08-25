@@ -19,7 +19,7 @@ public final class LocalDateUtils {
         long betweenDate = ChronoUnit.DAYS.between(startDate, endDate);
 
         LocalDate tempDate = startDate;
-        for (int i = 0; i < betweenDate; i++) {
+        for (int i = 0; i <= betweenDate; i++) {
             dates.add(tempDate);
             tempDate = tempDate.plusDays(1);
         }
